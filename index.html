@@ -4,59 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hello World Landing</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #ed3341;
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container {
-            text-align: center;
-            color: white;
-        }
-
-        h1 {
-            font-size: 4rem;
-            font-weight: 300;
-            letter-spacing: 2px;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            font-weight: 400;
-            opacity: 0.9;
-            letter-spacing: 1px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-            
-            .subtitle {
-                font-size: 1rem;
-            }
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="background-container">
+        <!-- Background images will be created dynamically by JavaScript -->
+    </div>
+    
     <div class="container">
         <h1>Game Jam 7</h1>
-        <p class="subtitle">by It Works!</p>
+        <p class="subtitle"><span class="subtitle-by">by</span> It Works!</p>
+        <p class="pre-icons-title">Try our game - Best Jam Game Title</p>
+
+        <div class="icon-grid">
+            <a class="icon-button" href="Builds/Eeh!Aah!Ooh!.apk" download title="Android">
+                <img src="PlatformIcons/android.png" alt="Android">
+            </a>
+            <a class="icon-button" href="./" title="iOS">
+                <img src="PlatformIcons/ios.png" alt="iOS">
+            </a>
+            <a class="icon-button" href="Builds/MacBUild.app" download title="macOS">
+                <img src="PlatformIcons/mac.png" alt="macOS">
+            </a>
+            <a class="icon-button" href="Builds/Eeh!Aah!Ooh!.apk.zip" download title="Windows">
+                <img src="PlatformIcons/win.png" alt="Windows">
+            </a>
+        </div>
+        <a class="cta" href="./">
+            <span>Or play right here</span>
+            <svg class="cta-triangle" viewBox="0 0 100 80" aria-hidden="true" focusable="false">
+                <polygon points="50,70 5,5 95,5"></polygon>
+            </svg>
+        </a>
     </div>
+
+    <script src="background-animation.js"></script>
 </body>
 </html>
