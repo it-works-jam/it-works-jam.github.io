@@ -79,6 +79,19 @@ body {
     white-space: nowrap;
 }
 
+.too-narrow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    color: #fff;
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    display: none;
+}
+
 /* (Reverted) Removed no-wrap and special centered overflow tweaks */
 
 body.no-anim .container {
@@ -190,7 +203,6 @@ body.measure .container {
     }
     .container {
         max-width: 70vw;
-        max-height: 70vh;
     }
 }
 
@@ -227,7 +239,7 @@ h1 {
 .pre-icons-title {
     margin-top: 3em;
     color: rgba(255, 255, 255, 0.95);
-    font-size: 1.4rem;
+    font-size: 1.85rem;
     letter-spacing: 0.5px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -252,4 +264,27 @@ h1 {
     .subtitle {
         font-size: 1.5rem;
     }
+}
+
+@media (orientation: portrait) {
+    .pre-icons-title {
+        margin-top: 1em;
+    }
+    .icon-button {
+        width: 80px;
+        height: 80px;
+    }
+    .cta {
+        transform: scale(0.75);
+        transform-origin: center top;
+    }
+    .cta:hover {
+        transform: translateY(5px) scale(0.75);
+    }
+}
+
+/* Portrait and extremely tall screens: hide main container and show the message */
+@media (orientation: portrait) and (max-aspect-ratio: 1/2.92) {
+    .container { display: none; }
+    .too-narrow { display: block; }
 }
