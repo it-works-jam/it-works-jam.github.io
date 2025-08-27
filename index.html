@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World Landing</title>
+    <title>It Works! game build</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
@@ -25,7 +25,11 @@
     <div class="container">
         <h1>Game Jam 7</h1>
         <p class="subtitle"><span class="subtitle-by">by</span> It Works!</p>
-        <p class="pre-icons-title">Try our game - Best Jam Game Title</p>
+        <p class="pre-icons-title">
+            <span class="pre-title-left">Try our game</span>
+            <span class="pre-title-sep"> - </span>
+            <span class="pre-title-right">Best Jam Game Title</span>
+        </p>
 
         <div class="icon-grid">
             <a class="icon-button" href="Builds/Eeh!Aah!Ooh!.apk" download title="Android">
@@ -50,46 +54,6 @@
     </div>
 
     <script src="background-animation.js"></script>
-    <script>
-    (function() {
-        var container = document.querySelector('.container');
-        if (!container) return;
-        function fitScale() {
-            var vw = window.innerWidth;
-            var vh = window.innerHeight;
-            var aspect = vw / vh;
-            var isLandscape = vw > vh;
-            // Smoothly scale between threshold and very wide screens
-            var threshold = 1.64; // start scaling around this aspect
-            var endAspect = 2.2;  // at this aspect and wider we reach target scale
-            if (isLandscape && aspect > threshold) {
-                // Target area is 70% of viewport in both dimensions, centered
-                var targetW = vw * 0.7;
-                var targetH = vh * 0.7;
-                // Measure natural container size (no scale, keep centered)
-                container.style.transform = 'translate(-50%, -50%)';
-                var rect = container.getBoundingClientRect();
-                var scaleW = targetW / rect.width;
-                var scaleH = targetH / rect.height;
-                var targetScale = Math.min(scaleW, scaleH, 1); // never upscale above 1
-                // Interpolate from 1 → targetScale as aspect goes threshold → endAspect
-                var t = Math.min(Math.max((aspect - threshold) / (endAspect - threshold), 0), 1);
-                var scale = 1 + (targetScale - 1) * t;
-                container.style.transform = 'translate(-50%, -50%) scale(' + scale.toFixed(3) + ')';
-            } else {
-                container.style.transform = 'translate(-50%, -50%)';
-            }
-        }
-        window.addEventListener('resize', fitScale);
-        window.addEventListener('orientationchange', fitScale);
-        // Run as early as possible and then remove initial no-anim and fade in
-        fitScale();
-        document.addEventListener('DOMContentLoaded', function(){
-            document.body.classList.remove('no-anim');
-            // allow a microtask tick to ensure styles applied, then mark loaded
-            requestAnimationFrame(function(){ document.body.classList.add('loaded'); });
-        });
-    })();
-    </script>
+    <script src="main.js"></script>
 </body>
 </html>
