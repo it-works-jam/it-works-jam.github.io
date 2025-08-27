@@ -1,6 +1,15 @@
+/* Independent container styling for webgame page (pre-fix main .container behavior) */
+.wg-container {
+    text-align: center;
+    color: white;
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 500ms ease-out;
+}
 .loading-dots {
     display: inline-block;
-    min-width: 3ch; /* reserve space for up to three dots to avoid shifts */
+    min-width: 1ch; /* reserve space for up to three dots to avoid shifts */
     text-align: left;
     vertical-align: baseline;
     letter-spacing: 0; /* cancel h1 letter-spacing for dots */

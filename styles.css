@@ -67,8 +67,28 @@ body {
 .container {
     text-align: center;
     color: white;
-    position: relative;
+    position: fixed;
+    top: 50%;
+    left: 50%;
     z-index: 2;
+    transform: translate(-50%, -50%);
+    transform-origin: center center;
+    will-change: transform;
+    opacity: 0;
+    transition: transform 180ms ease-out, opacity 500ms ease-out;
+}
+
+body.no-anim .container {
+    transition: none !important;
+}
+
+body.loaded .container {
+    opacity: 1;
+}
+
+/* Apply same fade-in pattern on webgame page */
+body.loaded .wg-container {
+    opacity: 1;
 }
 
 .icon-grid {

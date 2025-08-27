@@ -9,12 +9,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="./webgame.css">
+    <meta name="theme-color" content="#ed3341">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
-<body>
-    <div class="container">
+<body class="no-anim">
+    <div class="wg-container">
         <h1>Web player loading<span class="loading-dots" id="loading-dots"><span class="dot" aria-hidden="true">.</span><span class="dot" aria-hidden="true">.</span><span class="dot" aria-hidden="true">.</span></span></h1>
     </div>
 
+<script>
+(function() {
+    // fade-in like main page
+    document.addEventListener('DOMContentLoaded', function(){
+        requestAnimationFrame(function(){ document.body.classList.add('loaded'); });
+    });
+})();
+</script>
 </body>
 </html>
 <script>

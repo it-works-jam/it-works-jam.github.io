@@ -12,9 +12,12 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
     <link rel="icon" type="image/x-icon" href="favicon/favicon.ico">
     <link rel="manifest" href="favicon/site.webmanifest">
+    <meta name="theme-color" content="#ed3341">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="no-anim">
     <div class="background-container">
         <!-- Background images will be created dynamically by JavaScript -->
     </div>
@@ -47,5 +50,46 @@
     </div>
 
     <script src="background-animation.js"></script>
+    <script>
+    (function() {
+        var container = document.querySelector('.container');
+        if (!container) return;
+        function fitScale() {
+            var vw = window.innerWidth;
+            var vh = window.innerHeight;
+            var aspect = vw / vh;
+            var isLandscape = vw > vh;
+            // Smoothly scale between threshold and very wide screens
+            var threshold = 1.64; // start scaling around this aspect
+            var endAspect = 2.2;  // at this aspect and wider we reach target scale
+            if (isLandscape && aspect > threshold) {
+                // Target area is 70% of viewport in both dimensions, centered
+                var targetW = vw * 0.7;
+                var targetH = vh * 0.7;
+                // Measure natural container size (no scale, keep centered)
+                container.style.transform = 'translate(-50%, -50%)';
+                var rect = container.getBoundingClientRect();
+                var scaleW = targetW / rect.width;
+                var scaleH = targetH / rect.height;
+                var targetScale = Math.min(scaleW, scaleH, 1); // never upscale above 1
+                // Interpolate from 1 → targetScale as aspect goes threshold → endAspect
+                var t = Math.min(Math.max((aspect - threshold) / (endAspect - threshold), 0), 1);
+                var scale = 1 + (targetScale - 1) * t;
+                container.style.transform = 'translate(-50%, -50%) scale(' + scale.toFixed(3) + ')';
+            } else {
+                container.style.transform = 'translate(-50%, -50%)';
+            }
+        }
+        window.addEventListener('resize', fitScale);
+        window.addEventListener('orientationchange', fitScale);
+        // Run as early as possible and then remove initial no-anim and fade in
+        fitScale();
+        document.addEventListener('DOMContentLoaded', function(){
+            document.body.classList.remove('no-anim');
+            // allow a microtask tick to ensure styles applied, then mark loaded
+            requestAnimationFrame(function(){ document.body.classList.add('loaded'); });
+        });
+    })();
+    </script>
 </body>
 </html>
