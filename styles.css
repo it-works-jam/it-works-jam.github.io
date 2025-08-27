@@ -159,6 +159,10 @@ body {
         justify-items: center;
         align-items: center;
     }
+    .container {
+        max-width: 70vw;
+        max-height: 70vh;
+    }
 }
 
 h1 {
