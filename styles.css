@@ -4,6 +4,11 @@
     box-sizing: border-box;
 }
 
+:root {
+    --frame-color: #ed3341; /* Change this to adjust the gradient/frame color */
+    --frame-fade: 15%;       /* Change this to adjust how wide the fade is */
+}
+
 body {
     background-color: #ed3341;
     font-family: "Bubblegum Sans", sans-serif;
@@ -23,6 +28,22 @@ body {
     height: 100%;
     overflow: hidden;
     z-index: 1;
+}
+
+.background-container::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 2;
+    background:
+        linear-gradient(to right, var(--frame-color) 0, transparent var(--frame-fade)),
+        linear-gradient(to left, var(--frame-color) 0, transparent var(--frame-fade)),
+        linear-gradient(to bottom, var(--frame-color) 0, transparent var(--frame-fade)),
+        linear-gradient(to top, var(--frame-color) 0, transparent var(--frame-fade));
 }
 
 .background-image {

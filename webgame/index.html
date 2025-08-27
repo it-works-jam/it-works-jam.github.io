@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Player Loading</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="./webgame.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Web player loading<span class="loading-dots" id="loading-dots"><span class="dot" aria-hidden="true">.</span><span class="dot" aria-hidden="true">.</span><span class="dot" aria-hidden="true">.</span></span></h1>
+    </div>
+
+</body>
+</html>
+<script>
+(function() {
+    var container = document.getElementById('loading-dots');
+    var dots = Array.prototype.slice.call(container.querySelectorAll('.dot'));
+    var sequence = [0,1,2,3,0];
+    var idx = 0;
+    function update() {
+        var count = sequence[idx];
+        idx = (idx + 1) % sequence.length;
+        for (var i = 0; i < dots.length; i++) {
+            var target = i < count ? 1 : 0;
+            dots[i].style.opacity = target;
+        }
+    }
+    // init state
+    dots.forEach(function(d){ d.style.opacity = 0; });
+    setInterval(update, 350);
+})();
+</script>

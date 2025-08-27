@@ -1,0 +1,15 @@
+.loading-dots {
+    display: inline-block;
+    min-width: 3ch; /* reserve space for up to three dots to avoid shifts */
+    text-align: left;
+    vertical-align: baseline;
+    letter-spacing: 0; /* cancel h1 letter-spacing for dots */
+    position: relative;
+    top: 0.06em; /* nudge down a bit */
+    margin-left: 0.1em; /* small spacing after text */
+}
+
+.loading-dots .dot {
+    opacity: 0;
+    transition: opacity 180ms ease-in-out;
+}
