@@ -7,6 +7,7 @@ class BackgroundAnimation {
         this.spawnInterval = null;
         this.spawnRate = { min: 100, max: 4200 };
         this.animationSpeed = 0.4; // pixels per frame
+        this.suppressOpacityUpdates = false; // when true, update loop will not override opacity
         
         // Rotation speed parameters
         this.rotationSpeed = { min: 0.1, max: 0.3 }; // degrees per frame
@@ -175,21 +176,23 @@ class BackgroundAnimation {
             let rotation = parseFloat(img.dataset.rotation);
             const rotationSpeed = parseFloat(img.dataset.rotationSpeed);
             
-            // Handle fade-in opacity animation
-            const fadeInStartTime = parseFloat(img.dataset.fadeInStartTime);
-            const fadeInDuration = parseFloat(img.dataset.fadeInDuration);
-            const finalOpacity = parseFloat(img.dataset.finalOpacity);
-            const elapsedTime = currentTime - fadeInStartTime;
-            
-            if (elapsedTime < fadeInDuration) {
-                // Still in fade-in phase
-                const opacity = Math.min(finalOpacity, elapsedTime / fadeInDuration * finalOpacity);
-                img.style.opacity = opacity;
-                img.dataset.opacity = opacity;
-            } else {
-                // Fade-in complete, set to individual final opacity
-                img.style.opacity = finalOpacity;
-                img.dataset.opacity = finalOpacity;
+            // Handle fade-in opacity animation (skip when globally fading out)
+            if (!this.suppressOpacityUpdates) {
+                const fadeInStartTime = parseFloat(img.dataset.fadeInStartTime);
+                const fadeInDuration = parseFloat(img.dataset.fadeInDuration);
+                const finalOpacity = parseFloat(img.dataset.finalOpacity);
+                const elapsedTime = currentTime - fadeInStartTime;
+                
+                if (elapsedTime < fadeInDuration) {
+                    // Still in fade-in phase
+                    const opacity = Math.min(finalOpacity, elapsedTime / fadeInDuration * finalOpacity);
+                    img.style.opacity = opacity;
+                    img.dataset.opacity = opacity;
+                } else {
+                    // Fade-in complete, set to individual final opacity
+                    img.style.opacity = finalOpacity;
+                    img.dataset.opacity = finalOpacity;
+                }
             }
             
             // Update position - move diagonally up and right
@@ -214,6 +217,29 @@ class BackgroundAnimation {
                 this.removeImage(img);
             }
         });
+    }
+
+    // Smoothly fade out all existing images with randomized durations; returns a Promise
+    startGlobalFadeOut(minMs = 500, maxMs = 1000) {
+        this.pause(); // stop spawning new images
+        this.suppressOpacityUpdates = true; // allow CSS transitions to control opacity
+        const fades = [];
+        this.imageElements.forEach((img) => {
+            const dur = Math.max(minMs, Math.min(maxMs, Math.floor(this.getRandomInRange(minMs, maxMs))));
+            // set transition only for opacity to avoid affecting transforms from animation
+            img.style.transition = 'opacity ' + dur + 'ms ease-out';
+            // force reflow to ensure transition applies
+            void img.offsetWidth; // reflow
+            img.style.opacity = '0';
+            fades.push(new Promise((resolve) => {
+                let done = false;
+                const cleanup = () => { if (done) return; done = true; resolve(); };
+                const onEnd = (ev) => { if (ev.propertyName === 'opacity') { img.removeEventListener('transitionend', onEnd); cleanup(); } };
+                img.addEventListener('transitionend', onEnd);
+                setTimeout(cleanup, dur + 50);
+            }));
+        });
+        return Promise.all(fades);
     }
 
     removeImage(img) {

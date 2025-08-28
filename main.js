@@ -248,12 +248,117 @@
     }
 
     // Delegate click so it works even if the button is added after scripts
+    var isNavigating = false;
     document.addEventListener('click', function(e) {
-        var target = e.target && e.target.closest && e.target.closest('.float-f-btn');
-        if (!target) return;
-        console.log('[ƒ] Floating button clicked');
-        loadRandomGoogleFont();
-    }, { passive: true });
+        var btnTarget = e.target && e.target.closest && e.target.closest('.float-f-btn');
+        if (btnTarget) {
+            console.log('[ƒ] Floating button clicked');
+            loadRandomGoogleFont();
+            return;
+        }
+
+        var cta = e.target && e.target.closest && e.target.closest('.cta');
+        if (!cta) return;
+        // Intercept CTA navigation to run background fade sequence
+        e.preventDefault();
+        if (isNavigating) return;
+        isNavigating = true;
+        // Animate main container flying down, scaling and fading over 1s ease-in-back
+        var containerPromise = (function(){
+            try {
+                var containerEl = document.querySelector('.container');
+                if (!containerEl) return Promise.resolve();
+                // Ensure global no-anim flag is cleared so transitions are not disabled by CSS
+                document.body.classList.remove('no-anim');
+                // Force reflow after class change
+                void document.body.offsetWidth;
+                
+                // Get current transform value
+                var currentTransform = window.getComputedStyle(containerEl).transform;
+                var baseTransform = 'translate(-50%, -50%)';
+                
+                // If there's a scale applied, extract it
+                if (containerEl.style.transform && containerEl.style.transform.includes('scale')) {
+                    var scaleMatch = containerEl.style.transform.match(/scale\(([^)]+)\)/);
+                    if (scaleMatch) {
+                        baseTransform = 'translate(-50%, -50%) scale(' + scaleMatch[1] + ')';
+                    }
+                }
+                
+                var easing = 'cubic-bezier(0.6, -0.28, 0.735, 0.045)';
+                var duration = 1000;
+                
+                // Ensure starting state is committed
+                containerEl.style.willChange = 'transform, opacity';
+                
+                // Get current opacity
+                var currentOpacity = window.getComputedStyle(containerEl).opacity;
+                
+                // Remove any existing transitions
+                containerEl.style.transition = 'none';
+                containerEl.style.opacity = currentOpacity;
+                containerEl.style.transform = baseTransform;
+                
+                // Force reflow to commit initial state
+                void containerEl.offsetWidth;
+                
+                // Set up the animation
+                return new Promise(function(resolve){
+                    var done = false;
+                    var transitionCount = 0;
+                    var expectedTransitions = 2; // opacity and transform
+                    
+                    var cleanup = function(){ 
+                        if (done) return; 
+                        done = true; 
+                        containerEl.removeEventListener('transitionend', onEnd);
+                        resolve(); 
+                    };
+                    
+                    var onEnd = function(ev){
+                        if (ev.target !== containerEl) return;
+                        if (ev.propertyName === 'transform' || ev.propertyName === 'opacity') {
+                            transitionCount++;
+                            if (transitionCount >= expectedTransitions) {
+                                cleanup();
+                            }
+                        }
+                    };
+                    
+                    containerEl.addEventListener('transitionend', onEnd);
+                    
+                    // Apply transition and target values
+                    requestAnimationFrame(function(){
+                        // Set transition for both properties
+                        containerEl.style.transition = 'transform ' + duration + 'ms ' + easing + ', opacity ' + duration + 'ms ' + easing;
+                        
+                        // Apply final values
+                        containerEl.style.opacity = '0';
+                        // Combine all transforms: base position + additional animation
+                        containerEl.style.transform = 'translate(-50%, calc(-50% + 150vh)) scale(1.1)';
+                    });
+                    
+                    // Fallback timeout
+                    setTimeout(cleanup, duration + 100);
+                });
+            } catch (err) {
+                console.error('Container animation error:', err);
+                return Promise.resolve();
+            }
+        })();
+        try {
+            var bg = window.backgroundAnimation;
+            if (bg && typeof bg.startGlobalFadeOut === 'function') {
+                var bgPromise = bg.startGlobalFadeOut(500, 1000);
+                Promise.all([bgPromise, containerPromise]).then(function(){ window.location.href = cta.href; });
+            } else {
+                // Fallback: wait for container animation only
+                containerPromise.then(function(){ window.location.href = cta.href; });
+            }
+        } catch (err) {
+            window.location.href = cta.href;
+        }
+    }, { passive: false });
 
     // Touch-and-hold to reveal label after 2s on mobile
     (function(){
