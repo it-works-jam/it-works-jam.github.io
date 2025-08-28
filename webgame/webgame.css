@@ -1,11 +1,64 @@
+/* Make the canvas full-viewport and overlay the loading container */
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#unity-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    background: #231F20;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 1000ms ease;
+}
+
+/* Use dynamic viewport units where supported for true mobile full-screen */
+@supports (height: 100dvh) {
+    #unity-canvas {
+        height: 100dvh;
+    }
+}
+
+@supports (height: 100svh) {
+    #unity-canvas {
+        height: 100svh;
+    }
+}
+
 /* Independent container styling for webgame page (pre-fix main .container behavior) */
 .wg-container {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     color: white;
-    position: relative;
     z-index: 2;
+    opacity: 1;
+    transition: opacity 2000ms ease;
+    pointer-events: none;
+}
+
+.wg-container.fade-out {
     opacity: 0;
-    transition: opacity 500ms ease-out;
+}
+
+/* Ensure fade-out wins over global body.loaded .wg-container rule */
+body.loaded .wg-container.fade-out {
+    opacity: 0;
+}
+
+/* Canvas reveal state */
+#unity-canvas.visible {
+    opacity: 1;
 }
 .loading-dots {
     display: inline-block;
@@ -36,6 +89,16 @@ h1 {
     -ms-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
+}
+
+/* Restore initial fade-in for the container text */
+.wg-container h1 {
+    opacity: 0;
+    transition: opacity 500ms ease-out;
+}
+
+body.loaded .wg-container h1 {
+    opacity: 1;
 }
 
 @media (max-width: 768px) {
