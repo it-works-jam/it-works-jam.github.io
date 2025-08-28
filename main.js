@@ -86,7 +86,15 @@
     function revealOnce() {
         if (!document.body.classList.contains('loaded')) {
             document.body.classList.remove('no-anim');
-            requestAnimationFrame(function(){ document.body.classList.add('loaded'); });
+            // Ensure we add 'loaded' only after 'no-anim' is fully cleared
+            function addLoadedWhenReady() {
+                if (document.body.classList.contains('no-anim')) {
+                    requestAnimationFrame(addLoadedWhenReady);
+                } else {
+                    requestAnimationFrame(function(){ document.body.classList.add('loaded'); });
+                }
+            }
+            requestAnimationFrame(addLoadedWhenReady);
         }
     }
     // After fonts load or on window load, recalc and then reveal

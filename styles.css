@@ -75,7 +75,7 @@ body {
     transform-origin: center center;
     will-change: transform;
     opacity: 0;
-    transition: transform 180ms ease-out, opacity 500ms ease-out;
+    transition: transform 180ms ease-out, opacity 1000ms ease-out;
     white-space: nowrap;
 }
 
