@@ -1,9 +1,9 @@
 const cacheName = "DefaultCompany-GameJam7-0.1.0";
 const contentToCache = [
     "Build/TestWebBuildPWA.loader.js",
-    "Build/TestWebBuildPWA.framework.js.br",
-    "Build/TestWebBuildPWA.data.br",
-    "Build/TestWebBuildPWA.wasm.br",
+    "Build/TestWebBuildPWA.framework.js.unityweb",
+    "Build/TestWebBuildPWA.data.unityweb",
+    "Build/TestWebBuildPWA.wasm.unityweb",
     "TemplateData/style.css"
 
 ];
