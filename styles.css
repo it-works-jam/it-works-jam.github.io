@@ -287,6 +287,7 @@ body.measure .container {
     .cta-triangle {
         transform: scale(0.6);
         transform-origin: center top;
+        margin-bottom: -55px;
     }
     .jam-logo {
         margin-bottom: 0.5rem;

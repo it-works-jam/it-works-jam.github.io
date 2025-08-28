@@ -46,8 +46,8 @@
             var finalScale = Math.min(smoothScale, targetScale);
             container.style.transform = 'translate(-50%, -50%) scale(' + finalScale.toFixed(3) + ')';
         } else {
-            // In portrait: keep natural size, but on iPhone reduce to 80%
-            var portraitScale = isIPhoneDevice ? 0.9 : 1;
+            // In portrait: keep natural size, but on iPhone reduce to 87%
+            var portraitScale = isIPhoneDevice ? 0.87 : 1;
             if (portraitScale !== 1) {
                 container.style.transform = 'translate(-50%, -50%) scale(' + portraitScale + ')';
             } else {
