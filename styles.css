@@ -203,7 +203,7 @@ body.measure .container {
     }
 }
 
-h1 {
+.jam-logo {
     font-size: 5.2rem;
     font-weight: 300;
     letter-spacing: 2px;
@@ -256,7 +256,7 @@ h1 {
 .pre-icons-title.wrapped .pre-title-right { display: block; }
 
 @media (max-width: 768px) {
-    h1 {
+    .jam-logo {
         font-size: 3.25rem;
     }
     
@@ -284,6 +284,14 @@ h1 {
     .cta:hover {
         transform: translateY(5px) scale(0.75);
     }
+    .cta-triangle {
+        transform: scale(0.6);
+        transform-origin: center top;
+    }
+    .jam-logo {
+        margin-bottom: 0.5rem;
+    }
+    
 }
 
 /* Portrait and extremely tall screens: hide main container and show the message */

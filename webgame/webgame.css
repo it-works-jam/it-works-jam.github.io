@@ -22,3 +22,24 @@
     opacity: 0;
     transition: opacity 180ms ease-in-out;
 }
+
+h1 {
+    font-size: 5.2rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    padding-left: 5vw;
+    padding-right: 5vw;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 3.25rem;
+    }
+}
