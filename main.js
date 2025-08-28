@@ -133,4 +133,147 @@
     }
 })();
 
+// Floating button: apply random Google Font across the page on each click
+(function() {
+    // Optional: if you have a Google Webfonts API key, set it here to fetch live fonts
+    // Otherwise, a curated fallback list of Latin-supporting Google Fonts will be used
+    var GOOGLE_WEBFONTS_API_KEY = "AIzaSyCtLJ3vKpooEXcLuS05k4H2CnxacIcj9do"; // e.g., "YOUR_API_KEY" or leave null to use fallback list
 
+    var fontsCache = null;
+
+    var fallbackFonts = [
+        "Inter", "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins",
+        "Source Sans 3", "Nunito", "Playfair Display", "Oswald", "Raleway",
+        "Merriweather", "Work Sans", "Rubik", "Noto Sans", "Noto Serif",
+        "Quicksand", "Fira Sans", "Kanit", "Manrope", "Josefin Sans",
+        "Arimo", "Bebas Neue", "Abril Fatface", "Caveat", "DM Sans",
+        "DM Serif Display", "Pacifico", "Cinzel", "Titillium Web", "PT Sans",
+        "PT Serif", "IBM Plex Sans", "Space Grotesk", "Urbanist", "Mulish",
+        "Asap", "Barlow", "Varela Round", "Zilla Slab", "Crimson Text",
+        "Sora", "Heebo", "League Spartan", "Anton"
+    ];
+
+    function encodeFamily(family) {
+        return family.trim().replace(/\s+/g, '+');
+    }
+
+    function fetchFontsList() {
+        if (fontsCache) return Promise.resolve(fontsCache);
+        if (GOOGLE_WEBFONTS_API_KEY) {
+            var url = 'https://www.googleapis.com/webfonts/v1/webfonts?sort=popularity&key=' + encodeURIComponent(GOOGLE_WEBFONTS_API_KEY);
+            return fetch(url)
+                .then(function(r){ return r.json(); })
+                .then(function(d){
+                    var list = (d.items || [])
+                        .filter(function(it){ return (it.subsets || []).indexOf('latin') !== -1; })
+                        .map(function(it){ return it.family; });
+                    fontsCache = list && list.length ? list : fallbackFonts.slice();
+                    return fontsCache;
+                })
+                .catch(function(){ return fallbackFonts.slice(); });
+        }
+        return Promise.resolve(fallbackFonts.slice());
+    }
+
+    function pickRandom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function ensureLinkForFont(family) {
+        var id = 'dynamic-google-font';
+        var href = 'https://fonts.googleapis.com/css2?family=' + encodeFamily(family) + ':wght@400;600;700&display=swap';
+        var existing = document.getElementById(id);
+        if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+        var link = document.createElement('link');
+        link.id = id;
+        link.rel = 'stylesheet';
+        link.href = href;
+        document.head.appendChild(link);
+
+        return new Promise(function(resolve){
+            var done = false;
+            function finish(){ if (done) return; done = true; resolve(); }
+            if (document.fonts && document.fonts.load) {
+                Promise.all([
+                    document.fonts.load('400 1rem "' + family + '"'),
+                    document.fonts.load('700 1rem "' + family + '"')
+                ]).then(function(){ finish(); }).catch(function(){ finish(); });
+                setTimeout(finish, 1500);
+            } else {
+                link.addEventListener('load', function(){ finish(); });
+                setTimeout(finish, 1500);
+            }
+        });
+    }
+
+    function applyGlobalFont(family) {
+        var id = 'dynamic-font-override';
+        var style = document.getElementById(id);
+        var css = '* { font-family: "' + family.replace(/\"/g, '\\"') + '", sans-serif !important; }';
+        if (!style) {
+            style = document.createElement('style');
+            style.id = id;
+            style.type = 'text/css';
+            style.appendChild(document.createTextNode(css));
+            document.head.appendChild(style);
+        } else {
+            style.textContent = css;
+        }
+        // Update label text if present
+        var label = document.querySelector('.float-f-label');
+        if (label) {
+            label.textContent = family;
+        }
+    }
+
+    function triggerLayoutRecalc() {
+        try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+        var container = document.querySelector('.container');
+        if (container) {
+            var prev = container.style.transform;
+            container.style.transform = prev ? prev + ' ' : 'translate(-50%, -50%)';
+            requestAnimationFrame(function(){ container.style.transform = prev; });
+        }
+    }
+
+    function loadRandomGoogleFont() {
+        return fetchFontsList().then(function(list){
+            var family = pickRandom(list);
+            console.log('[ƒ] Applying font:', family);
+            return ensureLinkForFont(family).then(function(){
+                applyGlobalFont(family);
+                triggerLayoutRecalc();
+            });
+        });
+    }
+
+    // Delegate click so it works even if the button is added after scripts
+    document.addEventListener('click', function(e) {
+        var target = e.target && e.target.closest && e.target.closest('.float-f-btn');
+        if (!target) return;
+        console.log('[ƒ] Floating button clicked');
+        loadRandomGoogleFont();
+    }, { passive: true });
+
+    // Touch-and-hold to reveal label after 2s on mobile
+    (function(){
+        var wrap = document.querySelector('.float-f-wrap');
+        if (!wrap) return;
+        var holdTimer = null;
+        var start = function() {
+            clearTimeout(holdTimer);
+            holdTimer = setTimeout(function(){
+                wrap.classList.add('show-label');
+            }, 2000);
+        };
+        var end = function() {
+            clearTimeout(holdTimer);
+            wrap.classList.remove('show-label');
+        };
+        wrap.addEventListener('touchstart', function(ev){ start(); }, { passive: true });
+        wrap.addEventListener('touchend', function(ev){ end(); }, { passive: true });
+        wrap.addEventListener('touchcancel', function(ev){ end(); }, { passive: true });
+        // If user moves finger significantly, cancel
+        wrap.addEventListener('touchmove', function(ev){ if (ev.touches && ev.touches.length) { /* keep */ } }, { passive: true });
+    })();
+})();

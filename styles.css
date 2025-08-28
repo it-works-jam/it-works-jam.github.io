@@ -20,6 +20,105 @@ body {
     position: relative;
 }
 
+/* Floating glass button (bottom-right) */
+.float-f-wrap {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 3;
+    display: flex;
+    flex-direction: row-reverse; /* label on the left side of the button */
+    align-items: center;
+    gap: 10px;
+}
+
+.float-f-btn {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 34px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    transition: transform 0.12s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.float-f-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+}
+
+.float-f-btn:active {
+    transform: translateY(1px) scale(0.98);
+    background: rgba(255, 255, 255, 0.26);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+}
+
+.float-f-btn__glyph {
+    display: inline-block;
+    transform: translateY(-0.03em);
+    pointer-events: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+@media (orientation: portrait) {
+    .float-f-wrap {
+        right: 14px;
+        bottom: 14px;
+    }
+    .float-f-btn {
+        width: 56px;
+        height: 56px;
+        font-size: 30px;
+    }
+}
+
+/* Font label reveal after 2s hover */
+.float-f-label {
+    color: #fff;
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 16px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 300ms ease, transform 300ms ease;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.float-f-wrap:hover .float-f-label {
+    transition-delay: 1000ms; /* 1s hover before reveal */
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.float-f-wrap:not(:hover) .float-f-label {
+    transition-delay: 0ms; /* hide immediately on mouse out */
+}
+
+/* Touch-and-hold support: JS toggles show-label class after 2s */
+.float-f-wrap.show-label .float-f-label {
+    transition-delay: 0ms;
+    opacity: 1;
+    transform: translateX(0);
+}
+
 .background-container {
     position: absolute;
     top: 0;
