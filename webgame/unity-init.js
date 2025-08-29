@@ -9,9 +9,9 @@
 
   createUnityInstance(document.querySelector('#unity-canvas'), {
     arguments: [],
-    dataUrl: 'Build/TestWebBuildMinimal.data.unityweb',
-    frameworkUrl: 'Build/TestWebBuildMinimal.framework.js.unityweb',
-    codeUrl: 'Build/TestWebBuildMinimal.wasm.unityweb',
+    dataUrl: 'Build/TestWebBuildFinal.data.unityweb',
+    frameworkUrl: 'Build/TestWebBuildFinal.framework.js.unityweb',
+    codeUrl: 'Build/TestWebBuildFinal.wasm.unityweb',
     streamingAssetsUrl: 'StreamingAssets',
     companyName: 'DefaultCompany',
     productName: 'GameJam7',
