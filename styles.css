@@ -32,6 +32,12 @@ body {
     gap: 10px;
 }
 
+/* Global toggle to hide and disable the floating button while keeping DOM */
+body[data-float-btn="off"] .float-f-wrap {
+    display: none !important;
+    pointer-events: none !important;
+}
+
 .float-f-btn {
     position: relative;
     width: 64px;

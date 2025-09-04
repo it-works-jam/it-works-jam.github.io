@@ -135,6 +135,14 @@
 
 // Floating button: apply random Google Font across the page on each click
 (function() {
+    // Respect global toggle. If body has data-float-btn="off", fully disable logic
+    var bodyEl = document.body;
+    var floatDisabled = bodyEl && bodyEl.getAttribute('data-float-btn') === 'off';
+    if (floatDisabled) {
+        // Ensure label is cleared if any
+        var labelEl = document.querySelector('.float-f-label');
+        if (labelEl) { labelEl.textContent = ''; }
+    }
     // Optional: if you have a Google Webfonts API key, set it here to fetch live fonts
     // Otherwise, a curated fallback list of Latin-supporting Google Fonts will be used
     var GOOGLE_WEBFONTS_API_KEY = "AIzaSyCtLJ3vKpooEXcLuS05k4H2CnxacIcj9do"; // e.g., "YOUR_API_KEY" or leave null to use fallback list
@@ -250,11 +258,15 @@
     // Delegate click so it works even if the button is added after scripts
     var isNavigating = false;
     document.addEventListener('click', function(e) {
+        if (floatDisabled) {
+            // Skip float button behavior entirely
+        } else {
         var btnTarget = e.target && e.target.closest && e.target.closest('.float-f-btn');
         if (btnTarget) {
             console.log('[ƒ] Floating button clicked');
             loadRandomGoogleFont();
             return;
+        }
         }
 
         var cta = e.target && e.target.closest && e.target.closest('.cta');
@@ -364,6 +376,7 @@
     (function(){
         var wrap = document.querySelector('.float-f-wrap');
         if (!wrap) return;
+        if (floatDisabled) return; // do not attach touch handlers when disabled
         var holdTimer = null;
         var start = function() {
             clearTimeout(holdTimer);
