@@ -22,22 +22,33 @@
     setInterval(update, 350);
 })();
 
-// Fade out the overlay container after 3s over a duration of 2s
-(function() {
+// Expose UI effect functions to be triggered when the engine is loaded
+window.webgameFadeOutOverlay = function() {
     var wrapper = document.querySelector('.wg-container');
     if (!wrapper) return;
-    window.setTimeout(function() {
-        wrapper.classList.add('fade-out');
-    }, 3000);
-})();
+    wrapper.classList.add('fade-out');
+};
 
-// Reveal the canvas after 3s with a 1s fade-in
-(function() {
+window.webgameRevealCanvas = function() {
     var canvas = document.getElementById('unity-canvas');
     if (!canvas) return;
-    window.setTimeout(function() {
-        canvas.classList.add('visible');
-    }, 3000);
-})();
+    canvas.classList.add('visible');
+};
+
+// Convenience method to trigger both effects together
+window.webgameOnEngineLoaded = function() {
+    if (typeof window.webgameFadeOutOverlay === 'function') window.webgameFadeOutOverlay();
+    if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
+};
+
+// Function to be called by the Unity build when the engine is ready
+window.engineLoaded = function() {
+    if (typeof window.webgameOnEngineLoaded === 'function') {
+        window.webgameOnEngineLoaded();
+    } else {
+        if (typeof window.webgameFadeOutOverlay === 'function') window.webgameFadeOutOverlay();
+        if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
+    }
+};
 
 
