@@ -309,7 +309,7 @@ body.measure .container {
 }
 
 .jam-logo {
-    font-size: 5.2rem;
+    font-size: 4.9rem;
     font-weight: 300;
     letter-spacing: 2px;
     margin-bottom: 1rem;
@@ -404,4 +404,12 @@ body.measure .container {
 @media (orientation: portrait) and (max-aspect-ratio: 1/2.92) {
     .container { display: none; }
     .too-narrow { display: block; }
+}
+
+/* When JS detects a mobile device we add `is-mobile` to the body.
+   Hide and disable the CTA link visually while keeping it out of the
+   accessibility/tab order. */
+body.is-mobile .cta {
+    display: none !important;
+    pointer-events: none !important;
 }

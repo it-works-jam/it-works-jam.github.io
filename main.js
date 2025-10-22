@@ -138,11 +138,41 @@
     // Respect global toggle. If body has data-float-btn="off", fully disable logic
     var bodyEl = document.body;
     var floatDisabled = bodyEl && bodyEl.getAttribute('data-float-btn') === 'off';
-    if (floatDisabled) {
-        // Ensure label is cleared if any
-        var labelEl = document.querySelector('.float-f-label');
-        if (labelEl) { labelEl.textContent = ''; }
+
+    // Mobile detection: if the site is opened on a mobile device, we want to
+    // "turn off" the CTA block. We add a body class and disable the link(s).
+    // Use navigator.userAgentData when available, fall back to UA regex and
+    // a touch+small-screen heuristic.
+    var isMobileDevice = (function(){
+        try {
+            if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+                return navigator.userAgentData.mobile;
+            }
+        } catch (e) {}
+        var ua = navigator.userAgent || '';
+        var mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Silk/i;
+        if (mobileRegex.test(ua)) return true;
+        // Fallback: touchscreen + reasonably small screen -> likely a phone
+        if ('ontouchstart' in window && Math.max(window.screen.width, window.screen.height) < 1024) return true;
+        return false;
+    })();
+
+    if (isMobileDevice) {
+        document.body.classList.add('is-mobile');
+        // Hide and disable CTA(s) to fully "turn off" the block on mobile.
+        Array.prototype.forEach.call(document.querySelectorAll('.cta'), function(el){
+            // keep original href in a data attribute in case we want to restore it
+            if (el.hasAttribute('href')) el.setAttribute('data-href-disabled', el.getAttribute('href'));
+            el.setAttribute('aria-hidden', 'true');
+            el.removeAttribute('href');
+            el.tabIndex = -1;
+        });
     }
+     if (floatDisabled) {
+         // Ensure label is cleared if any
+         var labelEl = document.querySelector('.float-f-label');
+         if (labelEl) { labelEl.textContent = ''; }
+     }
     // Optional: if you have a Google Webfonts API key, set it here to fetch live fonts
     // Otherwise, a curated fallback list of Latin-supporting Google Fonts will be used
     var GOOGLE_WEBFONTS_API_KEY = "AIzaSyCtLJ3vKpooEXcLuS05k4H2CnxacIcj9do"; // e.g., "YOUR_API_KEY" or leave null to use fallback list
@@ -217,7 +247,8 @@
     function applyGlobalFont(family) {
         var id = 'dynamic-font-override';
         var style = document.getElementById(id);
-        var css = '* { font-family: "' + family.replace(/\"/g, '\\"') + '", sans-serif !important; }';
+        // Avoid lint warning: use /"/ -> /"/ -> use unescaped double quote in regex
+        var css = '* { font-family: "' + family.replace(/"/g, '\\"') + '", sans-serif !important; }';
         if (!style) {
             style = document.createElement('style');
             style.id = id;
@@ -258,9 +289,11 @@
     // Delegate click so it works even if the button is added after scripts
     var isNavigating = false;
     document.addEventListener('click', function(e) {
-        if (floatDisabled) {
-            // Skip float button behavior entirely
-        } else {
+        // If we detected mobile devices, do not run the CTA animation / interception.
+        if (isMobileDevice) return;
+         if (floatDisabled) {
+             // Skip float button behavior entirely
+         } else {
         var btnTarget = e.target && e.target.closest && e.target.closest('.float-f-btn');
         if (btnTarget) {
             console.log('[ƒ] Floating button clicked');
