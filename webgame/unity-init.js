@@ -9,12 +9,12 @@
 
   createUnityInstance(document.querySelector('#unity-canvas'), {
     arguments: [],
-    dataUrl: 'Build/TestWebBuildFinal.data.unityweb',
-    frameworkUrl: 'Build/TestWebBuildFinal.framework.js.unityweb',
-    codeUrl: 'Build/TestWebBuildFinal.wasm.unityweb',
+    dataUrl: 'Build/Web.data.unityweb',
+    frameworkUrl: 'Build/Web.framework.js.unityweb',
+    codeUrl: 'Build/Web.wasm.unityweb',
     streamingAssetsUrl: 'StreamingAssets',
-    companyName: 'DefaultCompany',
-    productName: 'GameJam7',
+    companyName: 'ItWorks!',
+    productName: 'Devil’s in Detail',
     productVersion: '0.1.0'
   }).then(function(unityInstance) {
   }).catch(function(message) {
