@@ -175,7 +175,7 @@
      }
     // Optional: if you have a Google Webfonts API key, set it here to fetch live fonts
     // Otherwise, a curated fallback list of Latin-supporting Google Fonts will be used
-    var GOOGLE_WEBFONTS_API_KEY = "AIzaSyCtLJ3vKpooEXcLuS05k4H2CnxacIcj9do"; // e.g., "YOUR_API_KEY" or leave null to use fallback list
+    var GOOGLE_WEBFONTS_API_KEY = null; // e.g., "YOUR_API_KEY" or leave null to use fallback list
 
     var fontsCache = null;
 
