@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>It Works! - Devil’s in Detail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="icon" type="image/x-icon" href="favicon/favicon.ico">
+    <link rel="manifest" href="favicon/site.webmanifest">
+    <meta name="theme-color" content="#ed3341">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="no-anim" data-float-btn="off">
+    <div class="background-container">
+        <!-- Background images will be created dynamically by JavaScript -->
+    </div>
+    
+    <div class="container">
+        <h1 class="jam-logo">Devil’s in Details</h1>
+        <p class="subtitle"><span class="subtitle-by">by</span> It Works!</p>
+        <p class="pre-icons-title">
+            <span class="pre-title-left">Download builds</span>
+            <span class="pre-title-sep"> - </span>
+            <span class="pre-title-right">rate the game</span>
+        </p>
+
+        <div class="icon-grid">
+            <a class="icon-button" href="Builds/DevilsInDetails.apk" download title="Android">
+                <img src="PlatformIcons/android.png" alt="Android">
+            </a>
+            <a class="icon-button" href="https://testflight.apple.com/join/JcwUYKmY" title="iOS">
+                <img src="PlatformIcons/ios.png" alt="iOS">
+            </a>
+            <a class="icon-button" href="Builds/DevilsInDetailsWindows.zip" download title="Windows">
+                <img src="PlatformIcons/win.png" alt="Windows">
+            </a>
+            <a class="icon-button" href="Builds/DevilsInDetailsMac.zip" download title="macOS">
+                <img src="PlatformIcons/mac.png" alt="macOS">
+            </a>
+        </div>
+        <a class="cta" href="webgame/">
+            <span>Or play right here</span>
+            <svg class="cta-triangle" viewBox="0 0 100 70" aria-hidden="true" focusable="false">
+                <polygon points="50,66 5,4 95,4"></polygon>
+            </svg>
+        </a>
+    </div>
+
+    <div class="too-narrow" aria-hidden="true">too narrow</div>
+
+    <script src="background-animation.js"></script>
+    <script src="main.js"></script>
+    <div class="float-f-wrap">
+        <button class="float-f-btn" aria-label="Function"><span class="float-f-btn__glyph">ƒ</span></button>
+        <div class="float-f-label" aria-hidden="true"></div>
+    </div>
+</body>
+</html>
