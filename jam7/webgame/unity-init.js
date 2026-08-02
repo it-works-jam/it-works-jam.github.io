@@ -16,7 +16,12 @@
     companyName: 'ItWorks!',
     productName: 'Devil’s in Detail',
     productVersion: '0.1.0'
+  }, function(progress) {
+    // feeds the thin bar under the Play button
+    if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(progress);
   }).then(function(unityInstance) {
+    window.unityInstance = unityInstance;
+    if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(1);
   }).catch(function(message) {
     alert(message);
   });

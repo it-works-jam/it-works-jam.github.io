@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>html, body { margin: 0; background-color: #ed3341; }</style>
     <title>Web Player Loading</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,19 +15,43 @@
     <link rel="icon" type="image/x-icon" href="../favicon/favicon.ico">
     <link rel="manifest" href="../favicon/site.webmanifest">
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="./webgame.css">
+    <link rel="stylesheet" href="./webgame.css?v=2">
     <meta name="theme-color" content="#ed3341">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body class="no-anim">
     <div class="wg-container">
-        <h1>Web player loading<span class="loading-dots" id="loading-dots"><span class="dot" aria-hidden="true">.</span><span class="dot" aria-hidden="true">.</span><span class="dot" aria-hidden="true">.</span></span></h1>
+        <!-- the button comes first: the click unlocks audio playback for the page -->
+        <button class="wg-play" id="wg-play" type="button">
+            <span class="wg-pad" aria-hidden="true">
+                <i class="wg-pad__grip wg-pad__grip--l"></i>
+                <i class="wg-pad__grip wg-pad__grip--r"></i>
+                <i class="wg-pad__body"></i>
+                <i class="wg-pad__dpad-h"></i>
+                <i class="wg-pad__dpad-v"></i>
+                <i class="wg-pad__btn wg-pad__btn--a"></i>
+                <i class="wg-pad__btn wg-pad__btn--b"></i>
+            </span>
+            <span class="wg-play__label">Play</span>
+        </button>
+
+        <div class="wg-loading" id="wg-loading">
+            <div class="wg-bar"><span class="wg-bar__fill" id="wg-bar-fill"></span></div>
+            <div class="wg-loading__label" id="wg-loading-label">loading</div>
+        </div>
     </div>
+
     <canvas id="unity-canvas" tabindex="-1"></canvas>
-   
-    <script src="./ui-effects.js"></script>
+
+    <!-- shown on phones whenever the screen is portrait -->
+    <div class="wg-rotate" id="wg-rotate" aria-hidden="true">
+        <span class="wg-phone" aria-hidden="true"></span>
+        <p class="wg-rotate__text">Rotate your device</p>
+    </div>
+
+    <script src="./ui-effects.js?v=2"></script>
     <script src="Build/Web.loader.js"></script>
-    <script src="./unity-init.js"></script>
+    <script src="./unity-init.js?v=2"></script>
 </body>
 </html>

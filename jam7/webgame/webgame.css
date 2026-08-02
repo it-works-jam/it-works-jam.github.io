@@ -37,8 +37,10 @@ html, body {
     position: fixed;
     inset: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 34px;
     text-align: center;
     color: white;
     z-index: 2;
@@ -60,49 +62,233 @@ body.loaded .wg-container.fade-out {
 #unity-canvas.visible {
     opacity: 1;
 }
-.loading-dots {
-    display: inline-block;
-    min-width: 1ch; /* reserve space for up to three dots to avoid shifts */
-    text-align: left;
-    vertical-align: baseline;
-    letter-spacing: 0; /* cancel h1 letter-spacing for dots */
-    position: relative;
-    top: 0.06em; /* nudge down a bit */
-    margin-left: 0.1em; /* small spacing after text */
-}
 
-.loading-dots .dot {
+/* ---------- launch button ---------- */
+
+.wg-play {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 32px 15px 28px;
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 1.7rem;
+    line-height: 1;
+    cursor: pointer;
     opacity: 0;
-    transition: opacity 180ms ease-in-out;
-}
-
-h1 {
-    font-size: 5.2rem;
-    font-weight: 300;
-    letter-spacing: 2px;
-    margin-bottom: 1rem;
-    padding-left: 5vw;
-    padding-right: 5vw;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    transform: translateY(6px);
+    transition: opacity 420ms ease, transform 420ms ease, background-color 200ms ease;
+    -webkit-tap-highlight-color: transparent;
     -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
-    -webkit-touch-callout: none;
 }
 
-/* Restore initial fade-in for the container text */
-.wg-container h1 {
+body.loaded .wg-play {
+    opacity: 1;
+    transform: translateY(0);
+    animation: wgBreathe 3.2s ease-in-out 600ms infinite;
+}
+
+.wg-play:hover {
+    background: rgba(255, 255, 255, 0.26);
+}
+
+.wg-play:active {
+    transform: scale(0.97);
+}
+
+/* once pressed the button steps aside for the progress bar */
+body.loaded .wg-play.is-gone,
+.wg-play.is-gone {
     opacity: 0;
-    transition: opacity 500ms ease-out;
+    transform: scale(0.92);
+    pointer-events: none;
+    animation: none;
+    position: absolute;
 }
 
-body.loaded .wg-container h1 {
+@keyframes wgBreathe {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.28); }
+    50% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+}
+
+.wg-play__label {
+    position: relative;
+    top: 0.06em;
+}
+
+/* gamepad glyph, drawn from plain boxes */
+.wg-pad {
+    position: relative;
+    display: block;
+    width: 34px;
+    height: 23px;
+    flex: 0 0 auto;
+}
+
+.wg-pad i {
+    position: absolute;
+    display: block;
+}
+
+.wg-pad__grip,
+.wg-pad__body {
+    background: #fff;
+}
+
+.wg-pad__grip {
+    top: 7px;
+    width: 9.5px;
+    height: 16px;
+    border-radius: 5px;
+}
+
+.wg-pad__grip--l { left: 1px; transform: rotate(20deg); }
+.wg-pad__grip--r { right: 1px; transform: rotate(-20deg); }
+
+.wg-pad__body {
+    left: 4px;
+    top: 0;
+    width: 26px;
+    height: 18px;
+    border-radius: 9px;
+}
+
+/* cut-outs are painted in the page colour */
+.wg-pad__dpad-h {
+    left: 6.5px;
+    top: 8px;
+    width: 11px;
+    height: 3.5px;
+    border-radius: 2px;
+    background: #ed3341;
+}
+
+.wg-pad__dpad-v {
+    left: 10.25px;
+    top: 4.25px;
+    width: 3.5px;
+    height: 11px;
+    border-radius: 2px;
+    background: #ed3341;
+}
+
+.wg-pad__btn {
+    width: 4.6px;
+    height: 4.6px;
+    border-radius: 50%;
+    background: #ed3341;
+}
+
+.wg-pad__btn--a { right: 5px; top: 4.2px; }
+.wg-pad__btn--b { right: 10.5px; top: 9.6px; }
+
+/* ---------- progress ---------- */
+
+.wg-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 13px;
+    opacity: 0;
+    transition: opacity 400ms ease;
+}
+
+.wg-loading.is-on {
     opacity: 1;
 }
 
+.wg-bar {
+    width: min(240px, 58vw);
+    height: 3px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.24);
+    overflow: hidden;
+}
+
+.wg-bar__fill {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: 3px;
+    background: #fff;
+    transition: width 260ms ease-out;
+}
+
+.wg-loading__label {
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.34em;
+    text-indent: 0.34em; /* keep the word optically centred despite the tracking */
+    color: rgba(255, 255, 255, 0.82);
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* ---------- rotate prompt ---------- */
+
+.wg-rotate {
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    padding: 24px;
+    background: #ed3341;
+    color: #fff;
+    text-align: center;
+}
+
+body.needs-rotate .wg-rotate {
+    display: flex;
+}
+
+.wg-phone {
+    position: relative;
+    width: 48px;
+    height: 82px;
+    border: 3px solid #fff;
+    border-radius: 11px;
+    animation: wgTilt 2.6s ease-in-out infinite;
+}
+
+.wg-phone::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    width: 18px;
+    height: 3px;
+    margin-left: -9px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.85);
+}
+
+@keyframes wgTilt {
+    0%, 25% { transform: rotate(0deg); }
+    55%, 85% { transform: rotate(-90deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.wg-rotate__text {
+    margin: 0;
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+}
+
 @media (max-width: 768px) {
-    h1 {
-        font-size: 3.25rem;
+    .wg-play {
+        font-size: 1.45rem;
+        padding: 13px 27px 13px 23px;
     }
 }
