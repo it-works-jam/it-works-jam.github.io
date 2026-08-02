@@ -153,6 +153,7 @@ body.loaded .wg-play.is-gone,
 .wg-play__label {
     position: relative;
     top: 0.06em;
+    letter-spacing: 0.06em;
 }
 
 /* play triangle, like a media player */
