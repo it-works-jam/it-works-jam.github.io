@@ -55,8 +55,12 @@
 
     var userStarted = false;
     var engineReady = false;
-    var progress = 0;
     var revealed = false;
+
+    // the bar chases the reported progress instead of snapping to it
+    var target = 0;
+    var shown = 0;
+    var rafId = null;
 
     function unlockAudio() {
         try {
@@ -79,8 +83,9 @@
         if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
     }
 
+    // let the bar finish its run before the overlay goes away
     function maybeReveal() {
-        if (userStarted && engineReady) reveal();
+        if (userStarted && engineReady && shown > 0.995) reveal();
     }
 
     function onPlay() {
@@ -102,20 +107,39 @@
     });
 
     function render() {
-        if (barFill) barFill.style.width = Math.round(progress * 100) + '%';
+        if (barFill) barFill.style.width = (shown * 100).toFixed(2) + '%';
         if (label) label.textContent = engineReady ? 'ready' : 'loading';
+    }
+
+    function tick() {
+        rafId = null;
+        var diff = target - shown;
+        if (diff <= 0.0008) {
+            shown = target;
+            render();
+            maybeReveal();
+            return;
+        }
+        // exponential chase with a floor, so even a jump from 0 to 1 reads as motion
+        shown = Math.min(target, shown + Math.max(diff * 0.075, 0.0022));
+        render();
+        rafId = requestAnimationFrame(tick);
+    }
+
+    function animateTo(value) {
+        target = Math.max(target, Math.min(1, value));
+        if (rafId === null) rafId = requestAnimationFrame(tick);
     }
 
     // called from unity-init.js while the build downloads
     window.webgameSetProgress = function(value) {
         if (typeof value !== 'number' || isNaN(value)) return;
-        progress = Math.max(progress, Math.min(1, value));
-        render();
+        animateTo(value);
     };
 
     window.webgameMarkEngineReady = function() {
         engineReady = true;
-        progress = 1;
+        animateTo(1);
         render();
         maybeReveal();
     };

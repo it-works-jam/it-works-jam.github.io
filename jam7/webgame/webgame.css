@@ -40,12 +40,12 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 34px;
+    gap: 30px;
     text-align: center;
     color: white;
     z-index: 2;
     opacity: 1;
-    transition: opacity 2000ms ease;
+    transition: opacity 660ms ease;
     pointer-events: none;
 }
 
@@ -61,6 +61,36 @@ body.loaded .wg-container.fade-out {
 /* Canvas reveal state */
 #unity-canvas.visible {
     opacity: 1;
+}
+
+/* ---------- game cover ---------- */
+
+.wg-cover {
+    width: 124px;
+    height: 124px;
+    border-radius: 26px;
+    object-fit: cover;
+    box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 520ms ease, transform 520ms ease;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
+
+body.loaded .wg-cover {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-height: 520px) {
+    .wg-cover {
+        width: 92px;
+        height: 92px;
+        border-radius: 20px;
+    }
 }
 
 /* ---------- launch button ---------- */
@@ -123,71 +153,20 @@ body.loaded .wg-play.is-gone,
     top: 0.06em;
 }
 
-/* gamepad glyph, drawn from plain boxes */
-.wg-pad {
-    position: relative;
-    display: block;
-    width: 34px;
-    height: 23px;
+/* play triangle, like a media player */
+.wg-play__icon {
+    width: 22px;
+    height: 22px;
     flex: 0 0 auto;
-}
-
-.wg-pad i {
-    position: absolute;
     display: block;
 }
 
-.wg-pad__grip,
-.wg-pad__body {
-    background: #fff;
+.wg-play__icon path {
+    fill: #fff;
+    stroke: #fff;
+    stroke-width: 2.6;
+    stroke-linejoin: round;
 }
-
-.wg-pad__grip {
-    top: 7px;
-    width: 9.5px;
-    height: 16px;
-    border-radius: 5px;
-}
-
-.wg-pad__grip--l { left: 1px; transform: rotate(20deg); }
-.wg-pad__grip--r { right: 1px; transform: rotate(-20deg); }
-
-.wg-pad__body {
-    left: 4px;
-    top: 0;
-    width: 26px;
-    height: 18px;
-    border-radius: 9px;
-}
-
-/* cut-outs are painted in the page colour */
-.wg-pad__dpad-h {
-    left: 6.5px;
-    top: 8px;
-    width: 11px;
-    height: 3.5px;
-    border-radius: 2px;
-    background: #ed3341;
-}
-
-.wg-pad__dpad-v {
-    left: 10.25px;
-    top: 4.25px;
-    width: 3.5px;
-    height: 11px;
-    border-radius: 2px;
-    background: #ed3341;
-}
-
-.wg-pad__btn {
-    width: 4.6px;
-    height: 4.6px;
-    border-radius: 50%;
-    background: #ed3341;
-}
-
-.wg-pad__btn--a { right: 5px; top: 4.2px; }
-.wg-pad__btn--b { right: 10.5px; top: 9.6px; }
 
 /* ---------- progress ---------- */
 
@@ -218,7 +197,7 @@ body.loaded .wg-play.is-gone,
     height: 100%;
     border-radius: 3px;
     background: #fff;
-    transition: width 260ms ease-out;
+    /* the width is eased frame by frame in ui-effects.js */
 }
 
 .wg-loading__label {
