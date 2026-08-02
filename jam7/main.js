@@ -288,6 +288,34 @@
 
     // Delegate click so it works even if the button is added after scripts
     var isNavigating = false;
+
+    // Returning with the back button restores this page from the bfcache in the
+    // state the leave animation left it in: container flown off screen, backgrounds
+    // faded to zero. Put everything back.
+    window.addEventListener('pageshow', function() {
+        isNavigating = false;
+        var containerEl = document.querySelector('.container');
+        if (containerEl) {
+            containerEl.style.transition = 'none';
+            containerEl.style.opacity = '';
+            containerEl.style.transform = '';
+            containerEl.style.willChange = '';
+        }
+        var bg = window.backgroundAnimation;
+        if (bg) bg.suppressOpacityUpdates = false;
+        Array.prototype.forEach.call(document.querySelectorAll('.background-container img'), function(img) {
+            img.style.transition = 'none';
+            img.style.opacity = img.dataset.opacity || '';
+        });
+        // recompute the container scale, then hand the transitions back to CSS
+        window.dispatchEvent(new Event('resize'));
+        requestAnimationFrame(function() {
+            if (containerEl) containerEl.style.transition = '';
+            Array.prototype.forEach.call(document.querySelectorAll('.background-container img'), function(img) {
+                img.style.transition = '';
+            });
+        });
+    });
     document.addEventListener('click', function(e) {
         // If we detected mobile devices, do not run the CTA animation / interception.
         if (isMobileDevice) return;
