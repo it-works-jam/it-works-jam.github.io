@@ -15,7 +15,7 @@
     <link rel="icon" type="image/x-icon" href="../favicon/favicon.ico">
     <link rel="manifest" href="../favicon/site.webmanifest">
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="./webgame.css?v=7">
+    <link rel="stylesheet" href="./webgame.css?v=8">
     <meta name="theme-color" content="#ed3341">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,17 +24,20 @@
     <div class="wg-container">
         <img class="wg-cover" src="./cover.png" alt="" aria-hidden="true">
 
-        <!-- the button comes first: the click unlocks audio playback for the page -->
-        <button class="wg-play" id="wg-play" type="button">
-            <span class="wg-play__label">PLAY</span>
-            <svg class="wg-play__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M8.5 5.6 L18 12 L8.5 18.4 Z"></path>
-            </svg>
-        </button>
+        <!-- button and progress share one grid cell, so swapping them shifts nothing -->
+        <div class="wg-switch">
+            <!-- the button comes first: the click unlocks audio playback for the page -->
+            <button class="wg-play" id="wg-play" type="button">
+                <span class="wg-play__label">PLAY</span>
+                <svg class="wg-play__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M8.5 5.6 L18 12 L8.5 18.4 Z"></path>
+                </svg>
+            </button>
 
-        <div class="wg-loading" id="wg-loading">
-            <div class="wg-bar"><span class="wg-bar__fill" id="wg-bar-fill"></span></div>
-            <div class="wg-loading__label" id="wg-loading-label">loading</div>
+            <div class="wg-loading" id="wg-loading">
+                <div class="wg-bar"><span class="wg-bar__fill" id="wg-bar-fill"></span></div>
+                <div class="wg-loading__label" id="wg-loading-label">LOADING</div>
+            </div>
         </div>
     </div>
 
@@ -46,8 +49,8 @@
         <p class="wg-rotate__text">Rotate your device</p>
     </div>
 
-    <script src="./ui-effects.js?v=7"></script>
+    <script src="./ui-effects.js?v=8"></script>
     <script src="Build/Web.loader.js"></script>
-    <script src="./unity-init.js?v=7"></script>
+    <script src="./unity-init.js?v=8"></script>
 </body>
 </html>

@@ -97,6 +97,19 @@ body.loaded .wg-cover {
 
 /* ---------- launch button ---------- */
 
+/* button and progress live in the same grid cell and cross-fade,
+   so nothing in the column reflows when they swap */
+.wg-switch {
+    display: grid;
+    place-items: center;
+    min-height: 56px;
+}
+
+.wg-switch > * {
+    grid-area: 1 / 1;
+}
+
+
 .wg-play {
     pointer-events: auto;
     display: inline-flex;
@@ -139,10 +152,10 @@ body.loaded .wg-play {
 body.loaded .wg-play.is-gone,
 .wg-play.is-gone {
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.9) translateY(-6px);
     pointer-events: none;
     animation: none;
-    position: absolute;
+    transition: opacity 300ms ease, transform 380ms cubic-bezier(0.34, 0.02, 0.28, 1);
 }
 
 @keyframes wgBreathe {
@@ -181,15 +194,24 @@ body.loaded .wg-play.is-gone,
     align-items: center;
     gap: 13px;
     opacity: 0;
-    transition: opacity 400ms ease;
+    transform: translateY(10px) scale(0.96);
+    transition: opacity 380ms ease 140ms, transform 460ms cubic-bezier(0.22, 0.68, 0.3, 1) 140ms;
 }
 
 .wg-loading.is-on {
     opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.wg-loading.is-on .wg-bar {
+    transform: scaleX(1);
 }
 
 .wg-bar {
     width: min(240px, 58vw);
+    transform: scaleX(0.6);
+    transform-origin: center;
+    transition: transform 520ms cubic-bezier(0.22, 0.68, 0.3, 1) 140ms;
     height: 3px;
     border-radius: 3px;
     background: rgba(255, 255, 255, 0.24);

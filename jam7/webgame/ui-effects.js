@@ -83,14 +83,23 @@
         if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
     }
 
-    // let the bar finish its run before the overlay goes away
+    // let the bar finish its run before the overlay goes away, and always give
+    // the button-to-progress swap time to play out even on an instant load
+    var startedAt = 0;
+    var pending = null;
+    var MIN_DWELL = 620;
+
     function maybeReveal() {
-        if (userStarted && engineReady && shown > 0.995) reveal();
+        if (!(userStarted && engineReady && shown > 0.995)) return;
+        var left = MIN_DWELL - (new Date().getTime() - startedAt);
+        if (left <= 0) { reveal(); return; }
+        if (pending === null) pending = setTimeout(function(){ pending = null; reveal(); }, left);
     }
 
     function onPlay() {
         if (userStarted) return;
         userStarted = true;
+        startedAt = new Date().getTime();
         unlockAudio();
         if (playBtn) playBtn.classList.add('is-gone');
         if (loading) loading.classList.add('is-on');
@@ -108,7 +117,7 @@
 
     function render() {
         if (barFill) barFill.style.width = (shown * 100).toFixed(2) + '%';
-        if (label) label.textContent = engineReady ? 'ready' : 'loading';
+        if (label) label.textContent = engineReady ? 'READY' : 'LOADING';
     }
 
     function tick() {
