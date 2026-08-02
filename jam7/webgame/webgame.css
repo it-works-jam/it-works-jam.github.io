@@ -101,8 +101,8 @@ body.loaded .wg-cover {
     pointer-events: auto;
     display: inline-flex;
     align-items: center;
-    gap: 14px;
-    padding: 15px 28px 15px 32px;
+    gap: 8px;
+    padding: 15px 22px 15px 32px;
     border: 1px solid rgba(255, 255, 255, 0.38);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.18);
@@ -158,10 +158,12 @@ body.loaded .wg-play.is-gone,
 
 /* play triangle, like a media player */
 .wg-play__icon {
-    width: 22px;
-    height: 22px;
+    width: 29px;
+    height: 29px;
     flex: 0 0 auto;
     display: block;
+    /* the glyph carries empty space inside its box - pull it back optically */
+    margin-left: -9px;
 }
 
 .wg-play__icon path {
