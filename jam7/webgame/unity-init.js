@@ -14,13 +14,13 @@
 
   createUnityInstance(document.querySelector('#unity-canvas'), {
     arguments: [],
-    dataUrl: 'Build/Web.data.unityweb',
-    frameworkUrl: 'Build/Web.framework.js.unityweb',
-    codeUrl: 'Build/Web.wasm.unityweb',
+    dataUrl: 'Build/f22060e97a61f2b74b09ce26059e805d.data.unityweb',
+    frameworkUrl: 'Build/84e228d928389cb0b1eda523abc881cc.framework.js.unityweb',
+    codeUrl: 'Build/20a7c54603ee963932e2e4afa352ab5c.wasm.unityweb',
     streamingAssetsUrl: 'StreamingAssets',
     companyName: 'ItWorks!',
     productName: 'Devil’s in Detail',
-    productVersion: '0.1.0'
+    productVersion: '0.1.1'
   }, function(progress) {
     // feeds the thin bar under the Play button
     if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(progress);
@@ -32,5 +32,4 @@
     alert(message);
   });
 })();
-
 
