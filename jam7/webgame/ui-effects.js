@@ -46,6 +46,44 @@
 })();
 
 /* ------------------------------------------------------------------
+ * Installability: Chrome only honours the manifest's fullscreen display
+ * mode for an installed app, and it only offers to install a page that
+ * has a service worker answering fetches.
+ * ---------------------------------------------------------------- */
+(function() {
+    if (!('serviceWorker' in navigator)) return;
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+            .catch(function() { /* http://, private mode - page still works */ });
+    });
+})();
+
+/* ------------------------------------------------------------------
+ * Fullscreen. Entering it needs a user gesture, so it rides along with
+ * the Play press. Installed as a PWA the manifest already covers this,
+ * but in a normal mobile tab this is what hides the browser chrome.
+ * ---------------------------------------------------------------- */
+window.webgameGoFullscreen = function() {
+    var root = document.documentElement;
+    var request = root.requestFullscreen || root.webkitRequestFullscreen ||
+        root.webkitRequestFullScreen || root.mozRequestFullScreen || root.msRequestFullscreen;
+    if (!request) return; // iPhone Safari: only the home-screen PWA goes fullscreen
+    try {
+        var result = request.call(root, { navigationUI: 'hide' });
+        if (result && result.catch) result.catch(function() {});
+    } catch (e) { /* refused - stay in the tab */ }
+};
+
+window.webgameLockLandscape = function() {
+    try {
+        if (screen.orientation && screen.orientation.lock) {
+            var p = screen.orientation.lock('landscape');
+            if (p && p.catch) p.catch(function() {}); // unsupported or not fullscreen yet
+        }
+    } catch (e) { /* desktop and iOS just say no */ }
+};
+
+/* ------------------------------------------------------------------
  * Portrait guard: on phones the game only makes sense in landscape,
  * so ask for a rotation every time the screen turns portrait.
  * ---------------------------------------------------------------- */
@@ -152,8 +190,14 @@
         if (userStarted) return;
         userStarted = true;
         startedAt = new Date().getTime();
+        // both of these must happen inside the gesture handler
+        if (typeof window.webgameGoFullscreen === 'function') window.webgameGoFullscreen();
         releaseEngineAudio();
         unlockAudio();
+        // orientation can only be locked once we are actually fullscreen
+        setTimeout(function() {
+            if (typeof window.webgameLockLandscape === 'function') window.webgameLockLandscape();
+        }, 120);
         if (playBtn) playBtn.classList.add('is-gone');
         if (loading) loading.classList.add('is-on');
         maybeReveal();
