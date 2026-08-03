@@ -14,9 +14,9 @@
 
   createUnityInstance(document.querySelector('#unity-canvas'), {
     arguments: [],
-    dataUrl: 'Build/f22060e97a61f2b74b09ce26059e805d.data.unityweb',
+    dataUrl: 'Build/42a01f49fccb416dc2fdb68e69449316.data.unityweb',
     frameworkUrl: 'Build/84e228d928389cb0b1eda523abc881cc.framework.js.unityweb',
-    codeUrl: 'Build/20a7c54603ee963932e2e4afa352ab5c.wasm.unityweb',
+    codeUrl: 'Build/f546073dbe843becfeef1249d82efaef.wasm.unityweb',
     streamingAssetsUrl: 'StreamingAssets',
     companyName: 'ItWorks!',
     productName: 'Devil’s in Detail',
