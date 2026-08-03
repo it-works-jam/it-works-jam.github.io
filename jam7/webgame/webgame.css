@@ -265,7 +265,10 @@ body.loaded .wg-play.is-gone,
     display: none;
     margin: 0;
     align-items: center;
-    gap: 7px;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 18px;
     font-family: "Bubblegum Sans", sans-serif;
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.72);
@@ -292,6 +295,13 @@ body.loaded .wg-play.is-gone,
     width: 16px;
     height: 16px;
     flex: 0 0 auto;
+    /* sit tight against the words each glyph belongs to */
+    margin-right: -2px;
+}
+
+.wg-ios-hint__arrow {
+    margin: 0 1px;
+    opacity: 0.8;
 }
 
 .wg-ios-hint svg path,
