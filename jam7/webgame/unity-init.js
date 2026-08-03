@@ -22,6 +22,7 @@
   }).then(function(unityInstance) {
     window.unityInstance = unityInstance;
     if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(1);
+    if (typeof window.webgameOnInstanceReady === 'function') window.webgameOnInstanceReady(unityInstance);
   }).catch(function(message) {
     alert(message);
   });

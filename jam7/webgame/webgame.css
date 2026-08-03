@@ -19,6 +19,13 @@ html, body {
     transition: opacity 1000ms ease;
 }
 
+/* until the player presses Play the canvas must not catch the pointer:
+   otherwise the engine's custom cursor shows through the loading screen */
+#unity-canvas:not(.visible) {
+    pointer-events: none;
+    cursor: default !important;
+}
+
 /* Use dynamic viewport units where supported for true mobile full-screen */
 @supports (height: 100dvh) {
     #unity-canvas {
@@ -61,6 +68,7 @@ body.loaded .wg-container.fade-out {
 /* Canvas reveal state */
 #unity-canvas.visible {
     opacity: 1;
+    pointer-events: auto;
 }
 
 /* ---------- game cover ---------- */

@@ -1,3 +1,44 @@
+/* ------------------------------------------------------------------
+ * Audio gate. This file runs before the Unity loader, so every
+ * AudioContext the engine creates goes through here: on a warm cache the
+ * build boots before anyone pressed Play, and it would start its music
+ * right away. Contexts stay suspended - and refuse to resume - until the
+ * player presses the button.
+ * ---------------------------------------------------------------- */
+(function() {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+
+    var contexts = [];
+    window.__wgAudioAllowed = false;
+
+    function Gated(options) {
+        var ctx = new Ctx(options);
+        contexts.push(ctx);
+        var resume = ctx.resume.bind(ctx);
+        ctx.__wgResume = resume;
+        ctx.resume = function() {
+            if (window.__wgAudioAllowed) return resume();
+            return Promise.resolve();
+        };
+        if (!window.__wgAudioAllowed) {
+            try { ctx.suspend(); } catch (e) { /* nothing to suspend yet */ }
+        }
+        return ctx;
+    }
+    Gated.prototype = Ctx.prototype;
+
+    window.AudioContext = Gated;
+    window.webkitAudioContext = Gated;
+
+    window.__wgAllowAudio = function() {
+        window.__wgAudioAllowed = true;
+        for (var i = 0; i < contexts.length; i++) {
+            try { contexts[i].__wgResume(); } catch (e) { /* already gone */ }
+        }
+    };
+})();
+
 (function() {
     document.addEventListener('DOMContentLoaded', function(){
         requestAnimationFrame(function(){ document.body.classList.add('loaded'); });
@@ -76,6 +117,17 @@
         } catch (e) { /* audio stays muted until the engine asks for it */ }
     }
 
+    // the audio gate at the top of this file keeps the engine quiet; this
+    // opens it once the player has pressed the button
+    function releaseEngineAudio() {
+        if (typeof window.__wgAllowAudio === 'function') window.__wgAllowAudio();
+    }
+
+    // called from unity-init.js once the instance exists
+    window.webgameOnInstanceReady = function() {
+        if (userStarted) releaseEngineAudio();
+    };
+
     function reveal() {
         if (revealed) return;
         revealed = true;
@@ -100,6 +152,7 @@
         if (userStarted) return;
         userStarted = true;
         startedAt = new Date().getTime();
+        releaseEngineAudio();
         unlockAudio();
         if (playBtn) playBtn.classList.add('is-gone');
         if (loading) loading.classList.add('is-on');
