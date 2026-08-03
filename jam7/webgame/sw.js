@@ -7,8 +7,8 @@
  *  - never get in the way of the Unity build, which is far too big to cache
  *    and must never be served stale.
  */
-var SHELL_CACHE = 'wg-shell-v1';
-var SHELL = ['./', './index.html', './cover.png'];
+var SHELL_CACHE = 'wg-shell-v2';
+var SHELL = ['./', './index.html', './cover.png', './icon-180.png', './icon-192.png'];
 
 self.addEventListener('install', function(event) {
     event.waitUntil(

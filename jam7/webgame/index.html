@@ -5,17 +5,21 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <style>html, body { margin: 0; background-color: #ed3341; }</style>
-    <title>Web Player Loading</title>
+    <title>Devil’s in Details</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
-    <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../favicon/favicon-16x16.png">
-    <link rel="icon" type="image/x-icon" href="../favicon/favicon.ico">
+    <!-- the player page carries the game's own icon, not the jam logo -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+    <link rel="apple-touch-icon-precomposed" sizes="180x180" href="./icon-180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png">
     <link rel="manifest" href="./game.webmanifest">
+    <!-- label under the icon when iOS adds the page to the home screen -->
+    <meta name="apple-mobile-web-app-title" content="Devil’s">
+    <meta name="application-name" content="Devil’s">
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="./webgame.css?v=15">
+    <link rel="stylesheet" href="./webgame.css?v=16">
     <meta name="theme-color" content="#ed3341">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -69,9 +73,9 @@
         <p class="wg-rotate__text">Rotate your device</p>
     </div>
 
-    <script src="./native-bridge.js?v=15"></script>
-    <script src="./ui-effects.js?v=15"></script>
+    <script src="./native-bridge.js?v=16"></script>
+    <script src="./ui-effects.js?v=16"></script>
     <script src="Build/Web.loader.js"></script>
-    <script src="./unity-init.js?v=15"></script>
+    <script src="./unity-init.js?v=16"></script>
 </body>
 </html>
