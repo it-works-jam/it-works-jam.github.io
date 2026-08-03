@@ -74,6 +74,44 @@ window.webgameGoFullscreen = function() {
     } catch (e) { /* refused - stay in the tab */ }
 };
 
+/* ------------------------------------------------------------------
+ * iPhone and iPad have no fullscreen API for pages - the only way there
+ * is a home-screen shortcut. Mention it once, quietly, and only where it
+ * applies: iOS Safari in a regular tab.
+ * ---------------------------------------------------------------- */
+(function() {
+    function isIOS() {
+        var ua = navigator.userAgent || '';
+        if (/iPad|iPhone|iPod/.test(ua)) return true;
+        return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1; // iPadOS
+    }
+
+    function isSafari() {
+        // the in-app browsers cannot add to the home screen the same way
+        return !/CriOS|FxiOS|EdgiOS|OPiOS|GSA|FBAN|FBAV|Instagram|Line/i.test(navigator.userAgent || '');
+    }
+
+    function alreadyInstalled() {
+        if (window.navigator.standalone === true) return true;
+        if (!window.matchMedia) return false;
+        return window.matchMedia('(display-mode: standalone)').matches ||
+            window.matchMedia('(display-mode: fullscreen)').matches;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var hint = document.getElementById('wg-ios-hint');
+        if (!hint) return;
+        if (!isIOS() || !isSafari() || alreadyInstalled()) return;
+        hint.classList.add('is-shown');
+        requestAnimationFrame(function() { hint.classList.add('is-on'); });
+    });
+})();
+
+window.webgameHideIosHint = function() {
+    var hint = document.getElementById('wg-ios-hint');
+    if (hint) hint.classList.add('is-gone');
+};
+
 window.webgameLockLandscape = function() {
     try {
         if (screen.orientation && screen.orientation.lock) {
@@ -192,6 +230,7 @@ window.webgameLockLandscape = function() {
         startedAt = new Date().getTime();
         // both of these must happen inside the gesture handler
         if (typeof window.webgameGoFullscreen === 'function') window.webgameGoFullscreen();
+        if (typeof window.webgameHideIosHint === 'function') window.webgameHideIosHint();
         releaseEngineAudio();
         unlockAudio();
         // orientation can only be locked once we are actually fullscreen

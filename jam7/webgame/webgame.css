@@ -245,6 +245,50 @@ body.loaded .wg-play.is-gone,
     user-select: none;
 }
 
+/* ---------- iOS fullscreen hint ---------- */
+
+/* hidden unless ui-effects.js decides this is iOS Safari in a plain tab */
+.wg-ios-hint {
+    display: none;
+    margin: 0;
+    align-items: center;
+    gap: 7px;
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.72);
+    opacity: 0;
+    transition: opacity 600ms ease 900ms;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.wg-ios-hint.is-shown {
+    display: inline-flex;
+}
+
+.wg-ios-hint.is-on {
+    opacity: 1;
+}
+
+.wg-ios-hint.is-gone {
+    opacity: 0;
+    transition: opacity 240ms ease;
+}
+
+.wg-ios-hint svg {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 auto;
+}
+
+.wg-ios-hint svg path {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.72);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 /* ---------- rotate prompt ---------- */
 
 .wg-rotate {
