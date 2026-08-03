@@ -406,5 +406,5 @@ body.measure .container {
     .too-narrow { display: block; }
 }
 
-/* `is-mobile` is set by JS on phones. The web player link stays available
-   there - only the leave animation is skipped (see main.js). */
+/* `is-mobile` is set by JS on phones; kept for mobile-only tweaks. The web
+   player link and the leave animation work on phones as well. */

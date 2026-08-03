@@ -139,8 +139,8 @@
     var bodyEl = document.body;
     var floatDisabled = bodyEl && bodyEl.getAttribute('data-float-btn') === 'off';
 
-    // Mobile detection: phones get the plain link instead of the leave
-    // animation, and the body class is available for mobile-only styling.
+    // Mobile detection: only used for the body class these days - the leave
+    // animation and the web player link are available everywhere.
     // Use navigator.userAgentData when available, fall back to UA regex and
     // a touch+small-screen heuristic.
     var isMobileDevice = (function(){
@@ -309,8 +309,6 @@
         });
     });
     document.addEventListener('click', function(e) {
-        // If we detected mobile devices, do not run the CTA animation / interception.
-        if (isMobileDevice) return;
          if (floatDisabled) {
              // Skip float button behavior entirely
          } else {
