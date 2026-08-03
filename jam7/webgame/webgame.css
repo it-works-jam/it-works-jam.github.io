@@ -289,12 +289,13 @@ body.loaded .wg-play.is-gone,
 }
 
 .wg-ios-hint svg {
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     flex: 0 0 auto;
 }
 
-.wg-ios-hint svg path {
+.wg-ios-hint svg path,
+.wg-ios-hint svg rect {
     fill: none;
     stroke: rgba(255, 255, 255, 0.72);
     stroke-width: 1.7;
