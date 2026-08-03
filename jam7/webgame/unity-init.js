@@ -1,11 +1,16 @@
 (function() {
-  // Ensure viewport meta is present for mobile scaling
-  if (!document.querySelector('meta[name="viewport"][content*="height=device-height"]')) {
-    var meta = document.createElement('meta');
-    meta.name = 'viewport';
-    meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-    document.getElementsByTagName('head')[0].appendChild(meta);
+  // Keep a single viewport meta and never lose viewport-fit=cover: without it
+  // iOS keeps the layout viewport clear of the notch in landscape, which shows
+  // as bars of page background down both sides of the game.
+  var viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) {
+    viewport = document.createElement('meta');
+    viewport.name = 'viewport';
+    document.getElementsByTagName('head')[0].appendChild(viewport);
   }
+  viewport.setAttribute('content',
+    'width=device-width, height=device-height, initial-scale=1.0, ' +
+    'user-scalable=no, shrink-to-fit=yes, viewport-fit=cover');
 
   createUnityInstance(document.querySelector('#unity-canvas'), {
     arguments: [],

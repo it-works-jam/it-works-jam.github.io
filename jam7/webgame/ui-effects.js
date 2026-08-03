@@ -301,6 +301,7 @@ window.webgameRevealCanvas = function() {
     var canvas = document.getElementById('unity-canvas');
     if (!canvas) return;
     canvas.classList.add('visible');
+    document.body.classList.add('game-on');
 };
 
 // Convenience method to trigger both effects together

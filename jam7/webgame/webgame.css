@@ -39,6 +39,14 @@ html, body {
     }
 }
 
+/* dynamic viewport width where available, so a notch in landscape cannot
+   leave the canvas narrower than the screen */
+@supports (width: 100dvw) {
+    #unity-canvas {
+        width: 100dvw;
+    }
+}
+
 /* Independent container styling for webgame page (pre-fix main .container behavior) */
 .wg-container {
     position: fixed;
@@ -69,6 +77,11 @@ body.loaded .wg-container.fade-out {
 #unity-canvas.visible {
     opacity: 1;
     pointer-events: auto;
+}
+
+body.game-on {
+    background-color: #231F20;
+    transition: background-color 700ms ease;
 }
 
 /* ---------- game cover ---------- */
