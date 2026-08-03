@@ -76,12 +76,70 @@
         return JSON.stringify(window.WGPlatform);
     };
 
+    /* Diagnostics. Open the page with ?wgdebug=1 to see, on screen, whether
+     * the game reaches this bridge at all - that tells apart "the browser
+     * refuses to vibrate" from "the build never calls us". */
+    var debugOn = (location.search || '').indexOf('wgdebug=1') !== -1;
+    var debugBox = null;
+
+    window.WGVibrateDebug = { calls: 0, lastArg: null, lastResult: null, lastError: '' };
+
+    function activationState() {
+        try {
+            if (navigator.userActivation) {
+                return (navigator.userActivation.hasBeenActive ? 'hasBeenActive' : 'never-active') +
+                    (navigator.userActivation.isActive ? ' +active' : '');
+            }
+        } catch (e) {}
+        return 'unknown';
+    }
+
+    function debugReport() {
+        if (!debugOn) return;
+        var d = window.WGVibrateDebug;
+        var text = 'vibrate: supported=' + canVibrate() +
+            ' calls=' + d.calls +
+            ' last=' + JSON.stringify(d.lastArg) +
+            ' ok=' + d.lastResult +
+            ' activation=' + activationState() +
+            (d.lastError ? ' err=' + d.lastError : '');
+        if (console && console.log) console.log('[wg] ' + text);
+        if (!debugBox) {
+            debugBox = document.createElement('div');
+            debugBox.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:2147483647;' +
+                'font:11px/1.4 ui-monospace,monospace;background:rgba(0,0,0,0.72);color:#8f8;' +
+                'padding:6px 8px;pointer-events:none;white-space:pre-wrap;';
+            (document.body || document.documentElement).appendChild(debugBox);
+        }
+        debugBox.textContent = text;
+    }
+
+    if (debugOn) {
+        document.addEventListener('DOMContentLoaded', debugReport);
+        setInterval(debugReport, 1000);
+    }
+
     /* Vibration. Chrome on Android only obeys this after the user has
      * interacted with the page - the Play button covers that. Safari on
      * iOS has no Vibration API at all, so this quietly returns false. */
     window.wgVibrate = function (pattern) {
-        if (!canVibrate()) return false;
-        if (document.hidden) return false; // ignored by the browser anyway
+        var dbg = window.WGVibrateDebug;
+        dbg.calls++;
+        dbg.lastArg = pattern;
+        dbg.lastError = '';
+
+        if (!canVibrate()) {
+            dbg.lastResult = false;
+            dbg.lastError = 'no navigator.vibrate';
+            debugReport();
+            return false;
+        }
+        if (document.hidden) {
+            dbg.lastResult = false;
+            dbg.lastError = 'page hidden';
+            debugReport();
+            return false;
+        }
 
         var value;
         if (typeof pattern === 'number') {
@@ -98,8 +156,15 @@
         }
 
         try {
-            return navigator.vibrate(value) !== false;
+            var ok = navigator.vibrate(value) !== false;
+            dbg.lastResult = ok;
+            if (!ok) dbg.lastError = 'browser refused (no user gesture yet, or vibration off)';
+            debugReport();
+            return ok;
         } catch (e) {
+            dbg.lastResult = false;
+            dbg.lastError = e && e.message ? e.message : 'threw';
+            debugReport();
             return false;
         }
     };

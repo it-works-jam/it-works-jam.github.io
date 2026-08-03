@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibration test</title>
+    <style>
+        html, body { margin: 0; background: #1b1b1e; color: #eee;
+            font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+        main { padding: 22px 18px 40px; max-width: 640px; margin: 0 auto; }
+        h1 { font-size: 17px; margin: 0 0 14px; }
+        button { display: block; width: 100%; margin: 0 0 10px; padding: 18px;
+            font: inherit; font-size: 16px; color: #111; background: #7ee081;
+            border: 0; border-radius: 12px; }
+        button.alt { background: #8ab4f8; }
+        pre { background: #000; padding: 12px; border-radius: 10px;
+            white-space: pre-wrap; word-break: break-word; }
+        .note { color: #999; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Vibration test</h1>
+    <p class="note">Tap a button. Anything below the buttons is what the browser
+        reported - no game involved.</p>
+
+    <button id="one">Vibrate 200 ms</button>
+    <button id="pattern" class="alt">Pattern 60 / 80 / 60</button>
+    <button id="long" class="alt">Vibrate 1000 ms</button>
+
+    <pre id="out">waiting for a tap...</pre>
+</main>
+
+<script>
+(function () {
+    var out = document.getElementById('out');
+    var log = [];
+
+    function state() {
+        var act = 'unknown';
+        try {
+            if (navigator.userActivation) {
+                act = (navigator.userActivation.hasBeenActive ? 'hasBeenActive' : 'never-active') +
+                    (navigator.userActivation.isActive ? ' +active' : '');
+            }
+        } catch (e) {}
+        return [
+            'navigator.vibrate: ' + (typeof navigator.vibrate),
+            'userActivation:    ' + act,
+            'visible:           ' + !document.hidden,
+            'secure context:    ' + window.isSecureContext,
+            'standalone/PWA:    ' + (window.navigator.standalone === true ||
+                (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+                (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches)),
+            'userAgent:         ' + navigator.userAgent
+        ].join('\n');
+    }
+
+    function report(label, value) {
+        var line;
+        if (typeof navigator.vibrate !== 'function') {
+            line = label + ' -> navigator.vibrate is missing on this browser';
+        } else {
+            var result;
+            try {
+                result = navigator.vibrate(value);
+            } catch (e) {
+                result = 'threw: ' + e.message;
+            }
+            line = label + ' -> returned ' + JSON.stringify(result) +
+                (result === true ? '  (browser accepted the call)' : '  (browser refused)');
+        }
+        log.unshift(line);
+        out.textContent = log.slice(0, 8).join('\n') + '\n\n' + state();
+    }
+
+    document.getElementById('one').addEventListener('click', function () { report('vibrate(200)', 200); });
+    document.getElementById('pattern').addEventListener('click', function () { report('vibrate([60,80,60])', [60, 80, 60]); });
+    document.getElementById('long').addEventListener('click', function () { report('vibrate(1000)', 1000); });
+
+    out.textContent = state();
+})();
+</script>
+</body>
+</html>
