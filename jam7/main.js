@@ -139,8 +139,8 @@
     var bodyEl = document.body;
     var floatDisabled = bodyEl && bodyEl.getAttribute('data-float-btn') === 'off';
 
-    // Mobile detection: if the site is opened on a mobile device, we want to
-    // "turn off" the CTA block. We add a body class and disable the link(s).
+    // Mobile detection: phones get the plain link instead of the leave
+    // animation, and the body class is available for mobile-only styling.
     // Use navigator.userAgentData when available, fall back to UA regex and
     // a touch+small-screen heuristic.
     var isMobileDevice = (function(){
@@ -159,14 +159,6 @@
 
     if (isMobileDevice) {
         document.body.classList.add('is-mobile');
-        // Hide and disable CTA(s) to fully "turn off" the block on mobile.
-        Array.prototype.forEach.call(document.querySelectorAll('.cta'), function(el){
-            // keep original href in a data attribute in case we want to restore it
-            if (el.hasAttribute('href')) el.setAttribute('data-href-disabled', el.getAttribute('href'));
-            el.setAttribute('aria-hidden', 'true');
-            el.removeAttribute('href');
-            el.tabIndex = -1;
-        });
     }
      if (floatDisabled) {
          // Ensure label is cleared if any

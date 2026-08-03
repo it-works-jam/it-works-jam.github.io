@@ -406,10 +406,5 @@ body.measure .container {
     .too-narrow { display: block; }
 }
 
-/* When JS detects a mobile device we add `is-mobile` to the body.
-   Hide and disable the CTA link visually while keeping it out of the
-   accessibility/tab order. */
-body.is-mobile .cta {
-    display: none !important;
-    pointer-events: none !important;
-}
+/* `is-mobile` is set by JS on phones. The web player link stays available
+   there - only the leave animation is skipped (see main.js). */
