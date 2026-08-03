@@ -46,6 +46,17 @@
 })();
 
 /* ------------------------------------------------------------------
+ * A long press on a touch screen fires contextmenu, which pops the
+ * browser's menu over the game (and on some platforms is what a build
+ * reads as a right click). The game gets the gesture instead.
+ * ---------------------------------------------------------------- */
+(function() {
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+})();
+
+/* ------------------------------------------------------------------
  * Installability: Chrome only honours the manifest's fullscreen display
  * mode for an installed app, and it only offers to install a page that
  * has a service worker answering fetches.

@@ -17,6 +17,13 @@ html, body {
     z-index: 1;
     opacity: 0;
     transition: opacity 1000ms ease;
+    /* the game owns every gesture: no double-tap zoom, no pull to refresh,
+       no text selection or long-press callout on top of the canvas */
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* until the player presses Play the canvas must not catch the pointer:
