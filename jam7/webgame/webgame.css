@@ -304,6 +304,11 @@ body.loaded .wg-play.is-gone,
     opacity: 0.8;
 }
 
+/* the reason, not part of the menu item name - kept a shade lighter */
+.wg-ios-hint__aside {
+    color: rgba(255, 255, 255, 0.45);
+}
+
 .wg-ios-hint svg path,
 .wg-ios-hint svg rect {
     fill: none;
