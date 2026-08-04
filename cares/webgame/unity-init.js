@@ -14,12 +14,9 @@
 
   createUnityInstance(document.querySelector('#unity-canvas'), {
     arguments: [],
-    // the build ships uncompressed: it was made without Unity's
-    // "Decompression Fallback", and a static host does not send
-    // Content-Encoding: gzip for .gz files
-    dataUrl: 'Build/NeverAlone.data',
-    frameworkUrl: 'Build/NeverAlone.framework.js',
-    codeUrl: 'Build/NeverAlone.wasm',
+    dataUrl: 'Build/NeverAlone.data.unityweb',
+    frameworkUrl: 'Build/NeverAlone.framework.js.unityweb',
+    codeUrl: 'Build/NeverAlone.wasm.unityweb',
     streamingAssetsUrl: 'StreamingAssets',
     companyName: 'BarelyWorks',
     productName: 'NeverAlone',
