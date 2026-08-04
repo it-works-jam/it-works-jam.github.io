@@ -9,7 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
-    <!-- the player page carries the game's own icon, not the jam logo -->
+    <!-- the player page carries the game's own icon, not the jam logo.
+         The iOS home-screen icon is cut from the borderless artwork
+         (cover-source.png): iOS masks the corners itself. -->
     <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
     <link rel="apple-touch-icon-precomposed" sizes="180x180" href="./icon-180.png">
     <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
@@ -19,7 +21,7 @@
     <meta name="apple-mobile-web-app-title" content="Never Alone">
     <meta name="application-name" content="Never Alone">
     <link rel="stylesheet" href="/jam7/styles.css">
-    <link rel="stylesheet" href="./webgame.css?v=8">
+    <link rel="stylesheet" href="./webgame.css?v=9">
     <meta name="theme-color" content="#ed3341">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -73,9 +75,9 @@
         <p class="wg-rotate__text">Rotate your device</p>
     </div>
 
-    <script src="./native-bridge.js?v=8"></script>
-    <script src="./ui-effects.js?v=8"></script>
+    <script src="./native-bridge.js?v=9"></script>
+    <script src="./ui-effects.js?v=9"></script>
     <script src="Build/NeverAlone.loader.js"></script>
-    <script src="./unity-init.js?v=8"></script>
+    <script src="./unity-init.js?v=9"></script>
 </body>
 </html>
