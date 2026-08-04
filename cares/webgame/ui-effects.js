@@ -240,11 +240,26 @@ window.webgameLockLandscape = function() {
     var pending = null;
     var MIN_DWELL = 620;
 
+    var MAX_WAIT = 1400;
+
     function maybeReveal() {
-        if (!(userStarted && engineReady && shown > 0.995)) return;
-        var left = MIN_DWELL - (new Date().getTime() - startedAt);
-        if (left <= 0) { reveal(); return; }
-        if (pending === null) pending = setTimeout(function(){ pending = null; reveal(); }, left);
+        if (!(userStarted && engineReady) || revealed || pending !== null) return;
+        var elapsed = new Date().getTime() - startedAt;
+        var delay;
+        if (shown > 0.995) {
+            delay = Math.max(MIN_DWELL - elapsed, 0);
+        } else {
+            // the bar has not arrived yet. It is eased in requestAnimationFrame,
+            // which the browser pauses while the tab is hidden - waiting for it
+            // would leave the player stuck on the loading screen, so cap the wait.
+            delay = Math.max(Math.min(MAX_WAIT - elapsed, MAX_WAIT), 0);
+        }
+        pending = setTimeout(function() {
+            pending = null;
+            shown = target;   // snap the bar so it never freezes mid-way
+            render();
+            reveal();
+        }, delay);
     }
 
     function onPlay() {
