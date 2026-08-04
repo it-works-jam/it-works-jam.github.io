@@ -1,0 +1,388 @@
+/* Make the canvas full-viewport and overlay the loading container */
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#unity-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    background: #231F20;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 1000ms ease;
+    /* the game owns every gesture: no double-tap zoom, no pull to refresh,
+       no text selection or long-press callout on top of the canvas */
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* until the player presses Play the canvas must not catch the pointer:
+   otherwise the engine's custom cursor shows through the loading screen */
+#unity-canvas:not(.visible) {
+    pointer-events: none;
+    cursor: default !important;
+}
+
+/* Use dynamic viewport units where supported for true mobile full-screen */
+@supports (height: 100dvh) {
+    #unity-canvas {
+        height: 100dvh;
+    }
+}
+
+@supports (height: 100svh) {
+    #unity-canvas {
+        height: 100svh;
+    }
+}
+
+/* dynamic viewport width where available, so a notch in landscape cannot
+   leave the canvas narrower than the screen */
+@supports (width: 100dvw) {
+    #unity-canvas {
+        width: 100dvw;
+    }
+}
+
+/* Independent container styling for webgame page (pre-fix main .container behavior) */
+.wg-container {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    text-align: center;
+    color: white;
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 660ms ease;
+    pointer-events: none;
+}
+
+.wg-container.fade-out {
+    opacity: 0;
+}
+
+/* Ensure fade-out wins over global body.loaded .wg-container rule */
+body.loaded .wg-container.fade-out {
+    opacity: 0;
+}
+
+/* Canvas reveal state */
+#unity-canvas.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+body.game-on {
+    background-color: #231F20;
+    transition: background-color 700ms ease;
+}
+
+/* ---------- game cover ---------- */
+
+.wg-cover {
+    width: 124px;
+    height: 124px;
+    box-sizing: border-box;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 26px;
+    object-fit: cover;
+    box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.6), 0 0 0 6px rgba(255, 255, 255, 0.08);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 520ms ease, transform 520ms ease;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
+
+body.loaded .wg-cover {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-height: 520px) {
+    .wg-cover {
+        width: 92px;
+        height: 92px;
+        border-radius: 20px;
+    }
+}
+
+/* ---------- launch button ---------- */
+
+/* button and progress live in the same grid cell and cross-fade,
+   so nothing in the column reflows when they swap */
+.wg-switch {
+    display: grid;
+    place-items: center;
+    min-height: 56px;
+}
+
+.wg-switch > * {
+    grid-area: 1 / 1;
+}
+
+
+.wg-play {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 15px 22px 15px 32px;
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 1.7rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 420ms ease, transform 420ms ease, background-color 200ms ease;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body.loaded .wg-play {
+    opacity: 1;
+    transform: translateY(0);
+    animation: wgBreathe 3.2s ease-in-out 600ms infinite;
+}
+
+.wg-play:hover {
+    background: rgba(255, 255, 255, 0.26);
+}
+
+.wg-play:active {
+    transform: scale(0.97);
+}
+
+/* once pressed the button steps aside for the progress bar */
+body.loaded .wg-play.is-gone,
+.wg-play.is-gone {
+    opacity: 0;
+    transform: scale(0.9) translateY(-6px);
+    pointer-events: none;
+    animation: none;
+    transition: opacity 300ms ease, transform 380ms cubic-bezier(0.34, 0.02, 0.28, 1);
+}
+
+@keyframes wgBreathe {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.28); }
+    50% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+}
+
+.wg-play__label {
+    position: relative;
+    top: 0.06em;
+    letter-spacing: 0.06em;
+}
+
+/* play triangle, like a media player */
+.wg-play__icon {
+    width: 29px;
+    height: 29px;
+    flex: 0 0 auto;
+    display: block;
+    /* the glyph carries empty space inside its box - pull it back optically */
+    margin-left: -9px;
+}
+
+.wg-play__icon path {
+    fill: #fff;
+    stroke: #fff;
+    stroke-width: 2.6;
+    stroke-linejoin: round;
+}
+
+/* ---------- progress ---------- */
+
+.wg-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 13px;
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+    transition: opacity 380ms ease 140ms, transform 460ms cubic-bezier(0.22, 0.68, 0.3, 1) 140ms;
+}
+
+.wg-loading.is-on {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.wg-loading.is-on .wg-bar {
+    transform: scaleX(1);
+}
+
+.wg-bar {
+    width: min(240px, 58vw);
+    transform: scaleX(0.6);
+    transform-origin: center;
+    transition: transform 520ms cubic-bezier(0.22, 0.68, 0.3, 1) 140ms;
+    height: 3px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.24);
+    overflow: hidden;
+}
+
+.wg-bar__fill {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: 3px;
+    background: #fff;
+    /* the width is eased frame by frame in ui-effects.js */
+}
+
+.wg-loading__label {
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.34em;
+    text-indent: 0.34em; /* keep the word optically centred despite the tracking */
+    color: rgba(255, 255, 255, 0.82);
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* ---------- iOS fullscreen hint ---------- */
+
+/* hidden unless ui-effects.js decides this is iOS Safari in a plain tab */
+.wg-ios-hint {
+    display: none;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 18px;
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.72);
+    opacity: 0;
+    transition: opacity 600ms ease 900ms;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.wg-ios-hint.is-shown {
+    display: inline-flex;
+}
+
+.wg-ios-hint.is-on {
+    opacity: 1;
+}
+
+.wg-ios-hint.is-gone {
+    opacity: 0;
+    transition: opacity 240ms ease;
+}
+
+.wg-ios-hint svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    /* sit tight against the words each glyph belongs to */
+    margin-right: -2px;
+}
+
+.wg-ios-hint__arrow {
+    margin: 0 1px;
+    opacity: 0.8;
+}
+
+/* the reason, not part of the menu item name - kept a shade lighter */
+.wg-ios-hint__aside {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.wg-ios-hint svg path,
+.wg-ios-hint svg rect {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.72);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ---------- rotate prompt ---------- */
+
+.wg-rotate {
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    padding: 24px;
+    background: #ed3341;
+    color: #fff;
+    text-align: center;
+}
+
+body.needs-rotate .wg-rotate {
+    display: flex;
+}
+
+.wg-phone {
+    position: relative;
+    width: 48px;
+    height: 82px;
+    border: 3px solid #fff;
+    border-radius: 11px;
+    animation: wgTilt 2.6s ease-in-out infinite;
+}
+
+.wg-phone::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    width: 18px;
+    height: 3px;
+    margin-left: -9px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.85);
+}
+
+@keyframes wgTilt {
+    0%, 25% { transform: rotate(0deg); }
+    55%, 85% { transform: rotate(-90deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.wg-rotate__text {
+    margin: 0;
+    font-family: "Bubblegum Sans", sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+    .wg-play {
+        font-size: 1.45rem;
+        padding: 13px 23px 13px 27px;
+    }
+}
