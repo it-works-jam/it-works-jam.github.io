@@ -12,23 +12,18 @@
     'width=device-width, height=device-height, initial-scale=1.0, ' +
     'user-scalable=no, shrink-to-fit=yes, viewport-fit=cover');
 
-  // the build lands later; keep the console clean until then
-  if (typeof createUnityInstance !== 'function') {
-    console.warn('[webgame] Never Alone build is not in place yet');
-    return;
-  }
-
   createUnityInstance(document.querySelector('#unity-canvas'), {
     arguments: [],
-    // TODO replace these four names with the hashed filenames of the
-    // Never Alone build (they are listed in Unity's own index.html)
-    dataUrl: 'Build/game.data.unityweb',
-    frameworkUrl: 'Build/game.framework.js.unityweb',
-    codeUrl: 'Build/game.wasm.unityweb',
+    // the build ships uncompressed: it was made without Unity's
+    // "Decompression Fallback", and a static host does not send
+    // Content-Encoding: gzip for .gz files
+    dataUrl: 'Build/NeverAlone.data',
+    frameworkUrl: 'Build/NeverAlone.framework.js',
+    codeUrl: 'Build/NeverAlone.wasm',
     streamingAssetsUrl: 'StreamingAssets',
-    companyName: 'Barely Works',
-    productName: 'Never Alone',
-    productVersion: '1.0.0'
+    companyName: 'BarelyWorks',
+    productName: 'NeverAlone',
+    productVersion: '0.1'
   }, function(progress) {
     // feeds the thin bar under the Play button
     if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(progress);
@@ -36,6 +31,12 @@
     window.unityInstance = unityInstance;
     if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(1);
     if (typeof window.webgameOnInstanceReady === 'function') window.webgameOnInstanceReady(unityInstance);
+    // this build does not call window.engineLoaded() from inside the game, so
+    // the finished instance is the ready signal - a beat later, to let the
+    // first frame draw before the loading screen goes away
+    setTimeout(function() {
+      if (typeof window.webgameMarkEngineReady === 'function') window.webgameMarkEngineReady();
+    }, 800);
   }).catch(function(message) {
     alert(message);
   });
