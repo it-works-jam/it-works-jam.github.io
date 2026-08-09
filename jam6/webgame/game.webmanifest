@@ -1,0 +1,17 @@
+{
+  "name": "Eeh! Aah, Ooh!",
+  "short_name": "Eeh! Aah, Ooh!",
+  "description": "Mostly Works - Game Jam 6 entry",
+  "id": "/jam6/webgame/",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "landscape",
+  "theme_color": "#ed3341",
+  "background_color": "#ed3341",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
