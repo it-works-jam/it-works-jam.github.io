@@ -14,9 +14,9 @@
 
   createUnityInstance(document.querySelector('#unity-canvas'), {
     arguments: [],
-    dataUrl: 'Build/352cc1cc3bdd1885240b33e453fd1e82.data.unityweb',
+    dataUrl: 'Build/ada5ba46505e074012bbfbec0028bccc.data.unityweb',
     frameworkUrl: 'Build/fd8b59fc5ca1a81ace8b22186b7a5054.framework.js.unityweb',
-    codeUrl: 'Build/ff8a04e8c6fa7a6c00bb6936475ceae3.wasm.unityweb',
+    codeUrl: 'Build/911d77b92b4eb060df1fcbe05710c6cf.wasm.unityweb',
     streamingAssetsUrl: 'StreamingAssets',
     companyName: 'Mostly Works',
     productName: 'Eeh! Aah, Ooh!',
