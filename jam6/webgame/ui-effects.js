@@ -194,8 +194,13 @@ window.webgameLockLandscape = function() {
     var label = null;
 
     var userStarted = false;
+    var playPending = false;
+    var launchClickArmed = false;
+    var userGesturePrepared = false;
     var engineReady = false;
     var revealed = false;
+
+    var VOICE_PLAY_LABELS = ['EEH!', 'AAH!', 'OOH!'];
 
     // the bar chases the reported progress instead of snapping to it
     var target = 0;
@@ -262,10 +267,9 @@ window.webgameLockLandscape = function() {
         }, delay);
     }
 
-    function onPlay() {
-        if (userStarted) return;
-        userStarted = true;
-        startedAt = new Date().getTime();
+    function prepareUserGesture() {
+        if (userGesturePrepared) return;
+        userGesturePrepared = true;
         // both of these must happen inside the gesture handler
         if (typeof window.webgameGoFullscreen === 'function') window.webgameGoFullscreen();
         if (typeof window.webgameHideIosHint === 'function') window.webgameHideIosHint();
@@ -275,9 +279,68 @@ window.webgameLockLandscape = function() {
         setTimeout(function() {
             if (typeof window.webgameLockLandscape === 'function') window.webgameLockLandscape();
         }, 120);
+    }
+
+    function finishPlay() {
+        if (userStarted) return;
+        playPending = false;
+        userStarted = true;
+        startedAt = new Date().getTime();
         if (playBtn) playBtn.classList.add('is-gone');
         if (loading) loading.classList.add('is-on');
         maybeReveal();
+    }
+
+    function armLaunchClick() {
+        playPending = false;
+        launchClickArmed = true;
+        if (playBtn) playBtn.disabled = false;
+
+        var playLabel = playBtn ? playBtn.querySelector('.wg-play__label') : null;
+        if (playLabel) {
+            var index = Math.floor(Math.random() * VOICE_PLAY_LABELS.length);
+            playLabel.textContent = VOICE_PLAY_LABELS[index];
+        }
+    }
+
+    function onPlay() {
+        if (userStarted || playPending) return;
+
+        // The permission prompt may force the browser out of fullscreen, and its
+        // Allow/Block button does not give this page a fresh user activation. Once
+        // permission has settled, use a second page click to enter fullscreen.
+        if (launchClickArmed) {
+            prepareUserGesture();
+            finishPlay();
+            return;
+        }
+
+        var preflight = window.__wgMicrophonePreflight;
+        var needsPermissionStep = preflight && preflight.status !== 'granted' &&
+            preflight.status !== 'unsupported';
+        if (!needsPermissionStep) {
+            prepareUserGesture();
+            finishPlay();
+            return;
+        }
+
+        var permission = typeof window.webgameRequestMicrophonePermission === 'function'
+            ? window.webgameRequestMicrophonePermission({ retry: true })
+            : null;
+        if (!permission || typeof permission.then !== 'function') {
+            prepareUserGesture();
+            finishPlay();
+            return;
+        }
+
+        playPending = true;
+        if (playBtn) playBtn.disabled = true;
+        var playLabel = playBtn ? playBtn.querySelector('.wg-play__label') : null;
+        if (playLabel) playLabel.textContent = 'MIC...';
+
+        // Grant or denial both lead to the launch click. On denial the game starts
+        // with keyboard/touch controls, but fullscreen remains reliable.
+        permission.then(armLaunchClick, armLaunchClick);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
