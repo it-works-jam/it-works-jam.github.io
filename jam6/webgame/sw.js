@@ -7,7 +7,7 @@
  *  - never get in the way of the Unity build, which is far too big to cache
  *    and must never be served stale.
  */
-var SHELL_CACHE = 'eao-shell-v1';
+var SHELL_CACHE = 'eao-shell-v2';
 var SHELL = ['./', './index.html', './cover.png', './icon-180.png', './icon-192.png'];
 
 self.addEventListener('install', function(event) {
