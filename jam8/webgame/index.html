@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <style>html, body { margin: 0; background-color: #ed3341; }</style>
+    <title>Devil’s in Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <!-- the player page carries the game's own icon, not the jam logo -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+    <link rel="apple-touch-icon-precomposed" sizes="180x180" href="./icon-180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icon-32.png">
+    <link rel="manifest" href="./game.webmanifest">
+    <!-- label under the icon when iOS adds the page to the home screen -->
+    <meta name="apple-mobile-web-app-title" content="Devil’s in Details">
+    <meta name="application-name" content="Devil’s in Details">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="./webgame.css?v=22">
+    <meta name="theme-color" content="#ed3341">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body class="no-anim">
+    <div class="wg-container">
+        <img class="wg-cover" src="./cover.png" alt="" aria-hidden="true">
+
+        <!-- button and progress share one grid cell, so swapping them shifts nothing -->
+        <div class="wg-switch">
+            <!-- the button comes first: the click unlocks audio playback for the page -->
+            <button class="wg-play" id="wg-play" type="button">
+                <span class="wg-play__label">PLAY</span>
+                <svg class="wg-play__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M8.5 5.6 L18 12 L8.5 18.4 Z"></path>
+                </svg>
+            </button>
+
+            <div class="wg-loading" id="wg-loading">
+                <div class="wg-bar"><span class="wg-bar__fill" id="wg-bar-fill"></span></div>
+                <div class="wg-loading__label" id="wg-loading-label">LOADING</div>
+            </div>
+        </div>
+
+        <!-- iOS has no fullscreen API for pages; shown only there (see ui-effects.js) -->
+        <p class="wg-ios-hint" id="wg-ios-hint">
+            <!-- the two glyphs the player has to look for, each next to its own step -->
+            <svg class="wg-ios-hint__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M12 3.6 V14.2" />
+                <path d="M8.4 7.2 L12 3.5 L15.6 7.2" />
+                <path d="M7.2 11.6 H5.6 V20.4 H18.4 V11.6 H16.8" />
+            </svg>
+            <span>Share</span>
+            <span class="wg-ios-hint__arrow" aria-hidden="true">&rarr;</span>
+            <svg class="wg-ios-hint__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="4.2" y="4.2" width="15.6" height="15.6" rx="4.6" ry="4.6" />
+                <path d="M12 8.4 V15.6" />
+                <path d="M8.4 12 H15.6" />
+            </svg>
+            <span>Add to Home Screen</span>
+            <span class="wg-ios-hint__aside">for fullscreen</span>
+        </p>
+    </div>
+
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+
+    <!-- shown on phones whenever the screen is portrait -->
+    <div class="wg-rotate" id="wg-rotate" aria-hidden="true">
+        <span class="wg-phone" aria-hidden="true"></span>
+        <p class="wg-rotate__text">Rotate your device</p>
+    </div>
+
+    <script src="./native-bridge.js?v=22"></script>
+    <script src="./ui-effects.js?v=22"></script>
+    <script src="Build/30c3b2dcf05b387367e967e7862cd351.loader.js"></script>
+    <script src="./unity-init.js?v=22"></script>
+</body>
+</html>
