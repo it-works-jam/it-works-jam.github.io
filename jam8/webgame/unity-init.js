@@ -28,9 +28,6 @@
     window.unityInstance = unityInstance;
     if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(1);
     if (typeof window.webgameOnInstanceReady === 'function') window.webgameOnInstanceReady(unityInstance);
-    // This build does not call the optional engineLoaded() bridge used by Jam 7.
-    // A resolved Unity instance is ready to be revealed after the user presses Play.
-    if (typeof window.webgameMarkEngineReady === 'function') window.webgameMarkEngineReady();
   }).catch(function(message) {
     alert(message);
   });
