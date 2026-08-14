@@ -14,9 +14,9 @@
 
   createUnityInstance(document.querySelector('#unity-canvas'), {
     arguments: [],
-    dataUrl: 'Build/42a01f49fccb416dc2fdb68e69449316.data.unityweb',
-    frameworkUrl: 'Build/84e228d928389cb0b1eda523abc881cc.framework.js.unityweb',
-    codeUrl: 'Build/f546073dbe843becfeef1249d82efaef.wasm.unityweb',
+    dataUrl: 'Build/Web.data.unityweb',
+    frameworkUrl: 'Build/Web.framework.js.unityweb',
+    codeUrl: 'Build/Web.wasm.unityweb',
     streamingAssetsUrl: 'StreamingAssets',
     companyName: 'ItWorks!',
     productName: 'Devil’s in Detail',
@@ -28,8 +28,10 @@
     window.unityInstance = unityInstance;
     if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(1);
     if (typeof window.webgameOnInstanceReady === 'function') window.webgameOnInstanceReady(unityInstance);
+    // This build does not call the optional engineLoaded() bridge used by Jam 7.
+    // A resolved Unity instance is ready to be revealed after the user presses Play.
+    if (typeof window.webgameMarkEngineReady === 'function') window.webgameMarkEngineReady();
   }).catch(function(message) {
     alert(message);
   });
 })();
-
