@@ -7,7 +7,8 @@
  *  - never get in the way of the Unity build, which is far too big to cache
  *    and must never be served stale.
  */
-var SHELL_CACHE = 'wg-shell-v2';
+var CACHE_PREFIX = 'wg-shell-';
+var SHELL_CACHE = CACHE_PREFIX + 'v2';
 var SHELL = ['./', './index.html', './cover.png', './icon-180.png', './icon-192.png'];
 
 self.addEventListener('install', function(event) {
@@ -22,9 +23,11 @@ self.addEventListener('activate', function(event) {
     event.waitUntil(
         caches.keys()
             .then(function(keys) {
-                return Promise.all(keys.map(function(key) {
-                    return key === SHELL_CACHE ? null : caches.delete(key);
-                }));
+                return Promise.all(keys
+                    .filter(function(key) {
+                        return key.indexOf(CACHE_PREFIX) === 0 && key !== SHELL_CACHE;
+                    })
+                    .map(function(key) { return caches.delete(key); }));
             })
             .then(function() { return self.clients.claim(); })
     );

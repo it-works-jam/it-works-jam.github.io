@@ -1,8 +1,8 @@
 {
   "name": "Devil's in Details",
   "short_name": "Devil's in Details",
-  "description": "It Works! - Plarium Game Jam 7 entry",
-  "id": "/jam7/webgame/",
+  "description": "It Works! - Plarium Game Jam 8 entry",
+  "id": "/jam8/webgame/",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
