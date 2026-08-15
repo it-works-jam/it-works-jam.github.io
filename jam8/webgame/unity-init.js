@@ -20,7 +20,7 @@
     streamingAssetsUrl: 'StreamingAssets',
     companyName: 'ItWorks!',
     productName: 'Devil’s in Detail',
-    productVersion: '0.1.1'
+    productVersion: '0.1.4'
   }, function(progress) {
     // feeds the thin bar under the Play button
     if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(progress);
