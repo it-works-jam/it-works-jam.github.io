@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jamhub-analytics",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-15",
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGINS": "https://it-works-jam.github.io,http://127.0.0.1:8765,http://localhost:8765"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "jamhub-analytics",
+      "database_id": "3be43eaf-e781-4ac6-9f93-ee44cf2feaaf"
+    }
+  ],
+  "triggers": {
+    "crons": ["17 3 * * *"]
+  }
+}

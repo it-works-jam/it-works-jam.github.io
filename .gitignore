@@ -1,2 +1,5 @@
 .DS_Store
 .idea/
+.wrangler/
+analytics-worker/node_modules/
+analytics-worker/.wrangler/

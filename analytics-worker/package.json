@@ -1,0 +1,17 @@
+{
+  "name": "jamhub-analytics-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/index.js && node --check ../analytics.js",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init:local": "wrangler d1 execute jamhub-analytics --local --file=./schema.sql",
+    "db:init:remote": "wrangler d1 execute jamhub-analytics --remote --file=./schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "4.123.0"
+  }
+}
