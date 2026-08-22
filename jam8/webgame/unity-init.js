@@ -14,13 +14,13 @@
 
   createUnityInstance(document.querySelector('#unity-canvas'), {
     arguments: [],
-    dataUrl: 'Build/Web.data',
-    frameworkUrl: 'Build/Web.framework.js',
-    codeUrl: 'Build/Web.wasm',
+    dataUrl: 'Build/Web.data.unityweb',
+    frameworkUrl: 'Build/Web.framework.js.unityweb',
+    codeUrl: 'Build/Web.wasm.unityweb',
     streamingAssetsUrl: 'StreamingAssets',
     companyName: 'ItWorks!',
     productName: 'Devil’s in Detail',
-    productVersion: '0.1.22'
+    productVersion: '0.1.24'
   }, function(progress) {
     // feeds the thin bar under the Play button
     if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(progress);
