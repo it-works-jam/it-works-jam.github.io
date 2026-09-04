@@ -184,8 +184,8 @@ window.webgameLockLandscape = function() {
     var userStarted = false;
     var engineReady = false;
     var revealed = false;
-    // Let the HTML splash start fading away before Unity's splash becomes visible.
-    var CANVAS_REVEAL_DELAY = 500;
+    // Reveal Unity only after the HTML splash is at least 90% transparent.
+    var OVERLAY_REVEAL_OPACITY = 0.1;
 
     // the bar chases the reported progress instead of snapping to it
     var target = 0;
@@ -221,9 +221,9 @@ window.webgameLockLandscape = function() {
         if (revealed) return;
         revealed = true;
         if (typeof window.webgameFadeOutOverlay === 'function') window.webgameFadeOutOverlay();
-        window.setTimeout(function() {
-            if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
-        }, CANVAS_REVEAL_DELAY);
+        if (typeof window.webgameRevealCanvasWhenOverlayFaded === 'function') {
+            window.webgameRevealCanvasWhenOverlayFaded(OVERLAY_REVEAL_OPACITY);
+        }
     }
 
     // let the bar finish its run before the overlay goes away, and always give
@@ -334,12 +334,34 @@ window.webgameRevealCanvas = function() {
     document.body.classList.add('game-on');
 };
 
+window.webgameRevealCanvasWhenOverlayFaded = function(targetOpacity) {
+    var wrapper = document.querySelector('.wg-container');
+    var revealed = false;
+    var threshold = typeof targetOpacity === 'number' ? targetOpacity : 0.1;
+
+    function revealCanvas() {
+        if (revealed) return;
+        revealed = true;
+        if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
+    }
+
+    function waitForFade() {
+        if (!wrapper || parseFloat(window.getComputedStyle(wrapper).opacity) <= threshold) {
+            revealCanvas();
+            return;
+        }
+        window.requestAnimationFrame(waitForFade);
+    }
+
+    window.requestAnimationFrame(waitForFade);
+};
+
 // Fallback for pages that invoke the legacy combined callback directly.
 window.webgameOnEngineLoaded = function() {
     if (typeof window.webgameFadeOutOverlay === 'function') window.webgameFadeOutOverlay();
-    window.setTimeout(function() {
-        if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
-    }, 500);
+    if (typeof window.webgameRevealCanvasWhenOverlayFaded === 'function') {
+        window.webgameRevealCanvasWhenOverlayFaded(0.1);
+    }
 };
 
 // Function to be called by the Unity build when the engine is ready.
