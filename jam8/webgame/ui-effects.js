@@ -184,6 +184,8 @@ window.webgameLockLandscape = function() {
     var userStarted = false;
     var engineReady = false;
     var revealed = false;
+    // Let the HTML splash start fading away before Unity's splash becomes visible.
+    var CANVAS_REVEAL_DELAY = 500;
 
     // the bar chases the reported progress instead of snapping to it
     var target = 0;
@@ -219,7 +221,9 @@ window.webgameLockLandscape = function() {
         if (revealed) return;
         revealed = true;
         if (typeof window.webgameFadeOutOverlay === 'function') window.webgameFadeOutOverlay();
-        if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
+        window.setTimeout(function() {
+            if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
+        }, CANVAS_REVEAL_DELAY);
     }
 
     // let the bar finish its run before the overlay goes away, and always give
@@ -330,10 +334,12 @@ window.webgameRevealCanvas = function() {
     document.body.classList.add('game-on');
 };
 
-// Convenience method to trigger both effects together
+// Fallback for pages that invoke the legacy combined callback directly.
 window.webgameOnEngineLoaded = function() {
     if (typeof window.webgameFadeOutOverlay === 'function') window.webgameFadeOutOverlay();
-    if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
+    window.setTimeout(function() {
+        if (typeof window.webgameRevealCanvas === 'function') window.webgameRevealCanvas();
+    }, 500);
 };
 
 // Function to be called by the Unity build when the engine is ready.
