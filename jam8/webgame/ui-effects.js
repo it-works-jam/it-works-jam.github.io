@@ -184,8 +184,8 @@ window.webgameLockLandscape = function() {
     var userStarted = false;
     var engineReady = false;
     var revealed = false;
-    // Reveal Unity only after the HTML splash is at least 90% transparent.
-    var OVERLAY_REVEAL_OPACITY = 0.1;
+    // Reveal Unity only after the HTML splash is at least 65% transparent.
+    var OVERLAY_REVEAL_OPACITY = 0.35;
 
     // the bar chases the reported progress instead of snapping to it
     var target = 0;
@@ -337,7 +337,7 @@ window.webgameRevealCanvas = function() {
 window.webgameRevealCanvasWhenOverlayFaded = function(targetOpacity) {
     var wrapper = document.querySelector('.wg-container');
     var revealed = false;
-    var threshold = typeof targetOpacity === 'number' ? targetOpacity : 0.1;
+    var threshold = typeof targetOpacity === 'number' ? targetOpacity : 0.35;
 
     function revealCanvas() {
         if (revealed) return;
@@ -360,7 +360,7 @@ window.webgameRevealCanvasWhenOverlayFaded = function(targetOpacity) {
 window.webgameOnEngineLoaded = function() {
     if (typeof window.webgameFadeOutOverlay === 'function') window.webgameFadeOutOverlay();
     if (typeof window.webgameRevealCanvasWhenOverlayFaded === 'function') {
-        window.webgameRevealCanvasWhenOverlayFaded(0.1);
+        window.webgameRevealCanvasWhenOverlayFaded(0.35);
     }
 };
 
