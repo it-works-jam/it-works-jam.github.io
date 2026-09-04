@@ -19,7 +19,7 @@
     codeUrl: 'Build/Web.wasm',
     streamingAssetsUrl: 'StreamingAssets',
     companyName: 'ItWorks!',
-    productName: 'Devil’s in Detail',
+    productName: 'Jam 2026',
     productVersion: '0.1.2'
   }, function(progress) {
     // feeds the thin bar under the Play button
