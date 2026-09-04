@@ -19955,6 +19955,17 @@ function invoke_vfi(index,a1,a2) {
   }
 }
 
+function invoke_viiff(index,a1,a2,a3,a4) {
+  var sp = stackSave();
+  try {
+    dynCall_viiff(index,a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_ddiii(index,a1,a2,a3,a4) {
   var sp = stackSave();
   try {
@@ -19981,17 +19992,6 @@ function invoke_fif(index,a1,a2) {
   var sp = stackSave();
   try {
     return dynCall_fif(index,a1,a2);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viiff(index,a1,a2,a3,a4) {
-  var sp = stackSave();
-  try {
-    dynCall_viiff(index,a1,a2,a3,a4);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
