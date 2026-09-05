@@ -20,7 +20,7 @@
     streamingAssetsUrl: 'StreamingAssets',
     companyName: 'ItWorks!',
     productName: 'Deal de la Muerta',
-    productVersion: '0.1.2'
+    productVersion: '0.1.13'
   }, function(progress) {
     // feeds the thin bar under the Play button
     if (typeof window.webgameSetProgress === 'function') window.webgameSetProgress(progress);
