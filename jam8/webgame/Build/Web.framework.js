@@ -7638,6 +7638,15 @@ function dbg(text) {
   		return lengthBytesUTF8(gpuinfo);
   	}
 
+  
+  function _JS_SystemInfo_GetLanguage(buffer, bufferSize)
+  	{
+  		var language = Module.SystemInfo.language;
+  		if (buffer)
+  			stringToUTF8(language, buffer, bufferSize);
+  		return lengthBytesUTF8(language);
+  	}
+
   function _JS_SystemInfo_GetMatchWebGLToCanvasSize()
   	{
   		// If matchWebGLToCanvasSize is not present, it is
@@ -7776,6 +7785,298 @@ function dbg(text) {
 
   function _JS_WebPlayer_FinishInitialization() {
   		Module.WebPlayer.PlayerIsInitialized();
+  	}
+
+  var wr = {requests:{},responses:{},abortControllers:{},timer:{},nextRequestId:1};
+  function _JS_WebRequest_Abort(requestId)
+  	{
+  		var abortController = wr.abortControllers[requestId];
+          if (!abortController || abortController.signal.aborted) {
+              return;
+          }
+  
+          abortController.abort();
+  	}
+
+  
+  
+  function _JS_WebRequest_Create(url, method)
+  	{
+  		var _url = UTF8ToString(url);
+  		var _method = UTF8ToString(method);
+  		var abortController = new AbortController();
+  		var requestOptions = {
+  			url: _url,
+  			init: {
+  				method: _method,
+  				signal: abortController.signal,
+  				headers: {},
+  				enableStreamingDownload: true
+  			},
+  			tempBuffer: null,
+  			tempBufferSize: 0
+  		};
+  
+  		wr.abortControllers[wr.nextRequestId] = abortController;
+  		wr.requests[wr.nextRequestId] = requestOptions;
+  
+  		return wr.nextRequestId++;
+  	}
+
+  
+  function jsWebRequestGetResponseHeaderString(requestId) {
+  		var response = wr.responses[requestId];
+  		if (!response) {
+            return "";
+          }
+  
+  		// Use cached value of response header string if present
+  		if (response.headerString) {
+  			return response.headerString;
+  		}
+  
+  		// Create response header string from headers object
+  		var headers = "";
+          var entries = response.headers.entries();
+          for (var result = entries.next(); !result.done; result = entries.next()) {
+              headers += result.value[0] + ": " + result.value[1] + "\r\n"; 
+          }
+  		response.headerString = headers;
+  
+  		return headers;
+  	}
+  
+  
+  function _JS_WebRequest_GetResponseMetaData(requestId, headerBuffer, headerSize, responseUrlBuffer, responseUrlSize)
+  	{
+  		var response = wr.responses[requestId];
+  		if (!response) {
+  		  stringToUTF8("", headerBuffer, headerSize);
+  		  stringToUTF8("", responseUrlBuffer, responseUrlSize);
+            return;
+          }
+  
+  		if (headerBuffer) {
+  			var headers = jsWebRequestGetResponseHeaderString(requestId);
+  			stringToUTF8(headers, headerBuffer, headerSize);
+  		}
+  
+  		if (responseUrlBuffer) {
+  			stringToUTF8(response.url, responseUrlBuffer, responseUrlSize);
+  		}
+  	}
+
+  
+  function _JS_WebRequest_GetResponseMetaDataLengths(requestId, buffer)
+  	{
+  		buffer = (buffer >> 2);
+  		var response = wr.responses[requestId];
+  		if (!response) {
+  		  HEAPU32[buffer] = 0;
+  		  HEAPU32[buffer + 1] = 0;
+            return;
+          }
+  
+  		var headers = jsWebRequestGetResponseHeaderString(requestId);
+         
+  		// Set length of header and response url to output buffer
+  		HEAPU32[buffer] = lengthBytesUTF8(headers);
+  		HEAPU32[buffer + 1] = lengthBytesUTF8(response.url);
+  	}
+
+  function _JS_WebRequest_Release(requestId)
+  	{
+          // Clear timeout
+  		if (wr.timer[requestId]) {
+  			clearTimeout(wr.timer[requestId]);
+  		}
+  
+  		// Remove all resources for request
+  		delete wr.requests[requestId];
+  		delete wr.responses[requestId];
+  		delete wr.abortControllers[requestId];
+  		delete wr.timer[requestId];
+  	}
+
+  
+  
+  function _JS_WebRequest_Send(requestId, ptr, length, arg, onresponse, onprogress)
+  	{	
+  		ptr = ptr;
+  		var requestOptions = wr.requests[requestId];
+          var abortController = wr.abortControllers[requestId];
+  
+  		function getTempBuffer(size) {
+  			// Allocate new temp buffer if none has been allocated
+  			if (!requestOptions.tempBuffer) {
+  				const initialSize = Math.max(size, 1024); // Use 1 kB as minimal temp buffer size to prevent too many reallocations
+  				requestOptions.tempBuffer = _malloc(initialSize);
+  				requestOptions.tempBufferSize = initialSize;
+  			}
+  
+  			// Increase size of temp buffer if necessary
+  			if (requestOptions.tempBufferSize < size) {
+  				_free(requestOptions.tempBuffer);
+  				requestOptions.tempBuffer =  _malloc(size);
+  				requestOptions.tempBufferSize = size;
+  			}
+  
+  			return requestOptions.tempBuffer;
+  		}
+  
+          function ClearTimeout() {
+  			if (wr.timer[requestId]) {
+  				clearTimeout(wr.timer[requestId]);
+                  delete wr.timer[requestId];
+  			}
+          }
+  
+  		function HandleSuccess(response, body) {
+              ClearTimeout();
+  
+  			if (!onresponse) {
+  				return;
+  			}
+  
+  			var kWebRequestOK = 0;
+  			// 200 is successful http request, 0 is returned by non-http requests (file:).
+  			if (requestOptions.init.enableStreamingDownload) {
+  				// Body was streamed only send final body length
+  				((a1, a2, a3, a4, a5, a6) => dynCall_viiiiii.apply(null, [onresponse, a1, a2, a3, a4, a5, a6]))(arg, response.status, 0, body.length, 0, kWebRequestOK);
+  			} else if (body.length != 0) {
+  				// Send whole body at once
+  				var buffer = _malloc(body.length);
+  				HEAPU8.set(body, buffer);
+  				((a1, a2, a3, a4, a5, a6) => dynCall_viiiiii.apply(null, [onresponse, a1, a2, a3, a4, a5, a6]))(arg, response.status, buffer, body.length, 0, kWebRequestOK);
+  				_free(buffer);
+  			} else {
+  				((a1, a2, a3, a4, a5, a6) => dynCall_viiiiii.apply(null, [onresponse, a1, a2, a3, a4, a5, a6]))(arg, response.status, 0, 0, 0, kWebRequestOK);
+  			}
+  
+  			// Cleanup temp buffer
+  			if (requestOptions.tempBuffer) {
+  				_free(requestOptions.tempBuffer);
+  			}
+  		}
+  
+  		function HandleError(err, code) {
+  			ClearTimeout();
+  
+              if (!onresponse) {
+  				return;
+  			}
+  
+  			var len = lengthBytesUTF8(err) + 1;
+  			var buffer = _malloc(len);
+  			stringToUTF8(err, buffer, len);
+  			((a1, a2, a3, a4, a5, a6) => dynCall_viiiiii.apply(null, [onresponse, a1, a2, a3, a4, a5, a6]))(arg, 500, 0, 0, buffer, code);
+              _free(buffer);
+  
+  			// Clean up temp buffer
+  			if (requestOptions.tempBuffer) {
+  				_free(requestOptions.tempBuffer);
+  			}
+  		}
+  
+  		function HandleProgress(e) {
+  			if (!onprogress || !e.lengthComputable) {
+  				return;
+  			}
+  
+  			var response = e.response;
+  			wr.responses[requestId] = response;
+  
+  			if (e.chunk) {
+  				// Response body streaming is enabled copy data to new buffer
+  				var buffer = getTempBuffer(e.chunk.length);
+  				HEAPU8.set(e.chunk, buffer);
+  				((a1, a2, a3, a4, a5, a6) => dynCall_viiiiii.apply(null, [onprogress, a1, a2, a3, a4, a5, a6]))(arg, response.status, e.loaded, e.total, buffer, e.chunk.length);
+  			} else {
+  				// no response body streaming
+  				((a1, a2, a3, a4, a5, a6) => dynCall_viiiiii.apply(null, [onprogress, a1, a2, a3, a4, a5, a6]))(arg, response.status, e.loaded, e.total, 0, 0);
+  			}
+  		}
+  
+  		try {
+  			if (length > 0) {
+  				var postData = HEAPU8.subarray(ptr, ptr+length);
+  				requestOptions.init.body = new Blob([postData]);
+  			}
+  
+  			// Add timeout handler if timeout is set
+  			if (requestOptions.timeout) {
+  				wr.timer[requestId] = setTimeout(function () {
+  					requestOptions.isTimedOut = true;
+  					abortController.abort();
+  				}, requestOptions.timeout);
+  			}
+  
+  			var fetchImpl = Module.fetchWithProgress;
+  			requestOptions.init.onProgress = HandleProgress;
+  			if (Module.companyName && Module.productName && Module.cachedFetch) {
+  				fetchImpl = Module.cachedFetch;
+  				requestOptions.init.companyName = Module.companyName;
+  				requestOptions.init.productName = Module.productName;
+  				requestOptions.init.productVersion = Module.productVersion;
+  				requestOptions.init.control = Module.cacheControl(requestOptions.url);
+  			}
+  
+  			fetchImpl(requestOptions.url, requestOptions.init).then(function (response) {
+  				wr.responses[requestId] = response;
+  
+                  HandleSuccess(response, response.parsedBody);
+  			}).catch(function (error) {
+  				var kWebErrorUnknown = 2;
+                  var kWebErrorAborted = 17;
+                  var kWebErrorTimeout = 14;
+  
+                  if (requestOptions.isTimedOut) {
+  					HandleError("Connection timed out.", kWebErrorTimeout);
+                  } else if (abortController.signal.aborted) {
+                      HandleError("Aborted.", kWebErrorAborted);
+                  } else {
+                      HandleError(error.message, kWebErrorUnknown);
+                  }
+  			});
+  		} catch(error) {
+  			var kWebErrorUnknown = 2;
+              HandleError(error.message, kWebErrorUnknown);
+  		}
+  	}
+
+  function _JS_WebRequest_SetRedirectLimit(request, redirectLimit)
+  	{
+  		var requestOptions = wr.requests[request];
+  		if (!requestOptions) {
+              return;
+  		}
+  
+  		// Disable redirects if redirectLimit == 0 otherwise use browser defined redirect limit
+  		requestOptions.init.redirect = redirectLimit === 0 ? "error" : "follow";
+  	}
+
+  
+  
+  function _JS_WebRequest_SetRequestHeader(requestId, header, value)
+  	{
+  		var requestOptions = wr.requests[requestId];
+  		if (!requestOptions) {
+              return;
+  		}
+  
+  		var _header = UTF8ToString(header);
+  		var _value = UTF8ToString(value);
+  		requestOptions.init.headers[_header] = _value;
+  	}
+
+  function _JS_WebRequest_SetTimeout(requestId, timeout)
+  	{
+          var requestOptions = wr.requests[requestId];
+  		if (!requestOptions) {
+              return;
+  		}
+  
+          requestOptions.timeout = timeout;
   	}
 
   function _WGCanVibrate() {
@@ -17431,6 +17732,7 @@ var wasmImports = {
   "JS_SystemInfo_GetCanvasClientSize": _JS_SystemInfo_GetCanvasClientSize,
   "JS_SystemInfo_GetDocumentURL": _JS_SystemInfo_GetDocumentURL,
   "JS_SystemInfo_GetGPUInfo": _JS_SystemInfo_GetGPUInfo,
+  "JS_SystemInfo_GetLanguage": _JS_SystemInfo_GetLanguage,
   "JS_SystemInfo_GetMatchWebGLToCanvasSize": _JS_SystemInfo_GetMatchWebGLToCanvasSize,
   "JS_SystemInfo_GetOS": _JS_SystemInfo_GetOS,
   "JS_SystemInfo_GetPreferredDevicePixelRatio": _JS_SystemInfo_GetPreferredDevicePixelRatio,
@@ -17449,6 +17751,15 @@ var wasmImports = {
   "JS_WebGPU_SetCommandEncoder": _JS_WebGPU_SetCommandEncoder,
   "JS_WebGPU_Setup": _JS_WebGPU_Setup,
   "JS_WebPlayer_FinishInitialization": _JS_WebPlayer_FinishInitialization,
+  "JS_WebRequest_Abort": _JS_WebRequest_Abort,
+  "JS_WebRequest_Create": _JS_WebRequest_Create,
+  "JS_WebRequest_GetResponseMetaData": _JS_WebRequest_GetResponseMetaData,
+  "JS_WebRequest_GetResponseMetaDataLengths": _JS_WebRequest_GetResponseMetaDataLengths,
+  "JS_WebRequest_Release": _JS_WebRequest_Release,
+  "JS_WebRequest_Send": _JS_WebRequest_Send,
+  "JS_WebRequest_SetRedirectLimit": _JS_WebRequest_SetRedirectLimit,
+  "JS_WebRequest_SetRequestHeader": _JS_WebRequest_SetRequestHeader,
+  "JS_WebRequest_SetTimeout": _JS_WebRequest_SetTimeout,
   "WGCanVibrate": _WGCanVibrate,
   "WGGetPlatformInfo": _WGGetPlatformInfo,
   "WGGyroscopeGetTiltX": _WGGyroscopeGetTiltX,
@@ -18109,13 +18420,27 @@ var dynCall_viji = Module["dynCall_viji"] = createExportWrapper("dynCall_viji");
 /** @type {function(...*):?} */
 var dynCall_viiiifi = Module["dynCall_viiiifi"] = createExportWrapper("dynCall_viiiifi");
 /** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiii"] = createExportWrapper("dynCall_viiiiiiiiiiiii");
+/** @type {function(...*):?} */
+var dynCall_ffii = Module["dynCall_ffii"] = createExportWrapper("dynCall_ffii");
+/** @type {function(...*):?} */
+var dynCall_iiiiiffiffiiiiiiiiiiii = Module["dynCall_iiiiiffiffiiiiiiiiiiii"] = createExportWrapper("dynCall_iiiiiffiffiiiiiiiiiiii");
+/** @type {function(...*):?} */
+var dynCall_fifi = Module["dynCall_fifi"] = createExportWrapper("dynCall_fifi");
+/** @type {function(...*):?} */
+var dynCall_viiiiffiiiiiiii = Module["dynCall_viiiiffiiiiiiii"] = createExportWrapper("dynCall_viiiiffiiiiiiii");
+/** @type {function(...*):?} */
+var dynCall_fii = Module["dynCall_fii"] = createExportWrapper("dynCall_fii");
+/** @type {function(...*):?} */
+var dynCall_viiffi = Module["dynCall_viiffi"] = createExportWrapper("dynCall_viiffi");
+/** @type {function(...*):?} */
 var dynCall_iiiifii = Module["dynCall_iiiifii"] = createExportWrapper("dynCall_iiiifii");
 /** @type {function(...*):?} */
 var dynCall_iiifii = Module["dynCall_iiifii"] = createExportWrapper("dynCall_iiifii");
 /** @type {function(...*):?} */
 var dynCall_viiiifii = Module["dynCall_viiiifii"] = createExportWrapper("dynCall_viiiifii");
 /** @type {function(...*):?} */
-var dynCall_viiffi = Module["dynCall_viiffi"] = createExportWrapper("dynCall_viiffi");
+var dynCall_viiiiiiiiiii = Module["dynCall_viiiiiiiiiii"] = createExportWrapper("dynCall_viiiiiiiiiii");
 /** @type {function(...*):?} */
 var dynCall_viiiidi = Module["dynCall_viiiidi"] = createExportWrapper("dynCall_viiiidi");
 /** @type {function(...*):?} */
@@ -18127,9 +18452,11 @@ var dynCall_iiiiiiidii = Module["dynCall_iiiiiiidii"] = createExportWrapper("dyn
 /** @type {function(...*):?} */
 var dynCall_viijii = Module["dynCall_viijii"] = createExportWrapper("dynCall_viijii");
 /** @type {function(...*):?} */
-var dynCall_fii = Module["dynCall_fii"] = createExportWrapper("dynCall_fii");
-/** @type {function(...*):?} */
 var dynCall_iifi = Module["dynCall_iifi"] = createExportWrapper("dynCall_iifi");
+/** @type {function(...*):?} */
+var dynCall_viiifi = Module["dynCall_viiifi"] = createExportWrapper("dynCall_viiifi");
+/** @type {function(...*):?} */
+var dynCall_iiiiiiiiiii = Module["dynCall_iiiiiiiiiii"] = createExportWrapper("dynCall_iiiiiiiiiii");
 /** @type {function(...*):?} */
 var dynCall_viffffffi = Module["dynCall_viffffffi"] = createExportWrapper("dynCall_viffffffi");
 /** @type {function(...*):?} */
@@ -18140,22 +18467,6 @@ var dynCall_vfffi = Module["dynCall_vfffi"] = createExportWrapper("dynCall_vfffi
 var dynCall_iiji = Module["dynCall_iiji"] = createExportWrapper("dynCall_iiji");
 /** @type {function(...*):?} */
 var dynCall_iiiifiiiiiii = Module["dynCall_iiiifiiiiiii"] = createExportWrapper("dynCall_iiiifiiiiiii");
-/** @type {function(...*):?} */
-var dynCall_viiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiii"] = createExportWrapper("dynCall_viiiiiiiiiiiii");
-/** @type {function(...*):?} */
-var dynCall_ffii = Module["dynCall_ffii"] = createExportWrapper("dynCall_ffii");
-/** @type {function(...*):?} */
-var dynCall_iiiiiffiffiiiiiiiiiiii = Module["dynCall_iiiiiffiffiiiiiiiiiiii"] = createExportWrapper("dynCall_iiiiiffiffiiiiiiiiiiii");
-/** @type {function(...*):?} */
-var dynCall_fifi = Module["dynCall_fifi"] = createExportWrapper("dynCall_fifi");
-/** @type {function(...*):?} */
-var dynCall_viiiiffiiiiiiii = Module["dynCall_viiiiffiiiiiiii"] = createExportWrapper("dynCall_viiiiffiiiiiiii");
-/** @type {function(...*):?} */
-var dynCall_viiiiiiiiiii = Module["dynCall_viiiiiiiiiii"] = createExportWrapper("dynCall_viiiiiiiiiii");
-/** @type {function(...*):?} */
-var dynCall_viiifi = Module["dynCall_viiifi"] = createExportWrapper("dynCall_viiifi");
-/** @type {function(...*):?} */
-var dynCall_iiiiiiiiiii = Module["dynCall_iiiiiiiiiii"] = createExportWrapper("dynCall_iiiiiiiiiii");
 /** @type {function(...*):?} */
 var dynCall_viiidi = Module["dynCall_viiidi"] = createExportWrapper("dynCall_viiidi");
 /** @type {function(...*):?} */
@@ -18529,6 +18840,8 @@ var dynCall_viiifffi = Module["dynCall_viiifffi"] = createExportWrapper("dynCall
 /** @type {function(...*):?} */
 var dynCall_iifffi = Module["dynCall_iifffi"] = createExportWrapper("dynCall_iifffi");
 /** @type {function(...*):?} */
+var dynCall_viijjii = Module["dynCall_viijjii"] = createExportWrapper("dynCall_viijjii");
+/** @type {function(...*):?} */
 var dynCall_ijiiiiiiiii = Module["dynCall_ijiiiiiiiii"] = createExportWrapper("dynCall_ijiiiiiiiii");
 /** @type {function(...*):?} */
 var dynCall_viiijiii = Module["dynCall_viiijiii"] = createExportWrapper("dynCall_viiijiii");
@@ -18896,6 +19209,8 @@ var dynCall_iiiiiiifii = Module["dynCall_iiiiiiifii"] = createExportWrapper("dyn
 var dynCall_iijjiii = Module["dynCall_iijjiii"] = createExportWrapper("dynCall_iijjiii");
 /** @type {function(...*):?} */
 var dynCall_vijjjii = Module["dynCall_vijjjii"] = createExportWrapper("dynCall_vijjjii");
+/** @type {function(...*):?} */
+var dynCall_viijjji = Module["dynCall_viijjji"] = createExportWrapper("dynCall_viijjji");
 /** @type {function(...*):?} */
 var dynCall_iiiiiff = Module["dynCall_iiiiiff"] = createExportWrapper("dynCall_iiiiiff");
 /** @type {function(...*):?} */
@@ -19385,127 +19700,6 @@ function invoke_viiiifi(index,a1,a2,a3,a4,a5,a6) {
   }
 }
 
-function invoke_iiiifii(index,a1,a2,a3,a4,a5,a6) {
-  var sp = stackSave();
-  try {
-    return dynCall_iiiifii(index,a1,a2,a3,a4,a5,a6);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viiifii(index,a1,a2,a3,a4,a5,a6) {
-  var sp = stackSave();
-  try {
-    dynCall_viiifii(index,a1,a2,a3,a4,a5,a6);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viiffi(index,a1,a2,a3,a4,a5) {
-  var sp = stackSave();
-  try {
-    dynCall_viiffi(index,a1,a2,a3,a4,a5);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viiiidi(index,a1,a2,a3,a4,a5,a6) {
-  var sp = stackSave();
-  try {
-    dynCall_viiiidi(index,a1,a2,a3,a4,a5,a6);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_iiiiiiidii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
-  var sp = stackSave();
-  try {
-    return dynCall_iiiiiiidii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_iifi(index,a1,a2,a3) {
-  var sp = stackSave();
-  try {
-    return dynCall_iifi(index,a1,a2,a3);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viffffffi(index,a1,a2,a3,a4,a5,a6,a7,a8) {
-  var sp = stackSave();
-  try {
-    dynCall_viffffffi(index,a1,a2,a3,a4,a5,a6,a7,a8);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_vffi(index,a1,a2,a3) {
-  var sp = stackSave();
-  try {
-    dynCall_vffi(index,a1,a2,a3);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_vfffi(index,a1,a2,a3,a4) {
-  var sp = stackSave();
-  try {
-    dynCall_vfffi(index,a1,a2,a3,a4);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_iiiifiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
-  var sp = stackSave();
-  try {
-    return dynCall_iiiifiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viiidi(index,a1,a2,a3,a4,a5) {
-  var sp = stackSave();
-  try {
-    dynCall_viiidi(index,a1,a2,a3,a4,a5);
-  } catch(e) {
-    stackRestore(sp);
-    if (!(e instanceof EmscriptenEH)) throw e;
-    _setThrew(1, 0);
-  }
-}
-
 function invoke_viiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13) {
   var sp = stackSave();
   try {
@@ -19561,6 +19755,39 @@ function invoke_viiiiffiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13
   }
 }
 
+function invoke_iiiifii(index,a1,a2,a3,a4,a5,a6) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiifii(index,a1,a2,a3,a4,a5,a6);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiifii(index,a1,a2,a3,a4,a5,a6) {
+  var sp = stackSave();
+  try {
+    dynCall_viiifii(index,a1,a2,a3,a4,a5,a6);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiffi(index,a1,a2,a3,a4,a5) {
+  var sp = stackSave();
+  try {
+    dynCall_viiffi(index,a1,a2,a3,a4,a5);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
   var sp = stackSave();
   try {
@@ -19572,10 +19799,98 @@ function invoke_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
   }
 }
 
+function invoke_viiiidi(index,a1,a2,a3,a4,a5,a6) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiidi(index,a1,a2,a3,a4,a5,a6);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiiidii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiiiiidii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iifi(index,a1,a2,a3) {
+  var sp = stackSave();
+  try {
+    return dynCall_iifi(index,a1,a2,a3);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_viiifi(index,a1,a2,a3,a4,a5) {
   var sp = stackSave();
   try {
     dynCall_viiifi(index,a1,a2,a3,a4,a5);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viffffffi(index,a1,a2,a3,a4,a5,a6,a7,a8) {
+  var sp = stackSave();
+  try {
+    dynCall_viffffffi(index,a1,a2,a3,a4,a5,a6,a7,a8);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_vffi(index,a1,a2,a3) {
+  var sp = stackSave();
+  try {
+    dynCall_vffi(index,a1,a2,a3);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_vfffi(index,a1,a2,a3,a4) {
+  var sp = stackSave();
+  try {
+    dynCall_vfffi(index,a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiifiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiifiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiidi(index,a1,a2,a3,a4,a5) {
+  var sp = stackSave();
+  try {
+    dynCall_viiidi(index,a1,a2,a3,a4,a5);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -20331,7 +20646,6 @@ var missingLibrarySymbols = [
   'webgpu_LoadCache',
   'getStringHash',
   'storeWebGPUObjectCache',
-  'jsWebRequestGetResponseHeaderString',
 ];
 missingLibrarySymbols.forEach(missingLibrarySymbol)
 
@@ -20665,6 +20979,7 @@ var unexportedSymbols = [
   'webgpu_cache',
   'webgpu_buildID',
   'wr',
+  'jsWebRequestGetResponseHeaderString',
   'IDBFS',
 ];
 unexportedSymbols.forEach(unexportedRuntimeSymbol);
