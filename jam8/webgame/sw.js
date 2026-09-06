@@ -10,7 +10,7 @@
 // Cache Storage is shared by every jam player on this origin. Only caches with this
 // game's prefix may be cleaned up during activation.
 var CACHE_PREFIX = 'jam8-wg-shell-';
-var SHELL_CACHE = CACHE_PREFIX + 'v1';
+var SHELL_CACHE = CACHE_PREFIX + 'v2';
 var SHELL = ['./', './index.html', './cover.png', './icon-180.png', './icon-192.png'];
 
 self.addEventListener('install', function(event) {
