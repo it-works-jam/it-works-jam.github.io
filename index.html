@@ -56,6 +56,26 @@ document.addEventListener('DOMContentLoaded', async function() {
     const manifest = JSON.parse(manifestEl.textContent);
     let template = JSON.parse(templateEl.textContent);
 
+    // Release-only content switches for the packed Jam Hub template. Keep the
+    // voting badge markup available so it can be enabled again for a future jam.
+    const jamHubRelease = {
+      showVotingBadge: false,
+      jam8Award: { place: 'winner', category: 'Best Art' },
+    };
+
+    if (!jamHubRelease.showVotingBadge) {
+      template = template.replace(
+        '<sc-if value="{{ jam.isUpcoming }}" hint-placeholder-val="{{ false }}">',
+        '<sc-if value="{{ false }}" hint-placeholder-val="{{ false }}">'
+      );
+    }
+
+    template = template.replace(
+      "    awards: [],\n    url: 'jam8/',",
+      "    awards: [\n      { place: '" + jamHubRelease.jam8Award.place +
+        "', category: '" + jamHubRelease.jam8Award.category + "' },\n    ],\n    url: 'jam8/',"
+    );
+
     const uuids = Object.keys(manifest);
     setStatus('Unpacking ' + uuids.length + ' assets...');
 
