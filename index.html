@@ -56,6 +56,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     const manifest = JSON.parse(manifestEl.textContent);
     let template = JSON.parse(templateEl.textContent);
 
+    // The archived template is stored as one packed JSON line below. Keep the
+    // Jam 8 card aligned with the renamed artwork without rewriting the bundle.
+    template = template.replace('Backgrounds/jam8.png', 'Backgrounds/dealdelamuerta.png');
+
     // Release-only content switches for the packed Jam Hub template. Keep the
     // voting badge markup available so it can be enabled again for a future jam.
     const jamHubRelease = {
